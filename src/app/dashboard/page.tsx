@@ -45,7 +45,7 @@ export default async function DashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-          <p className="text-slate-400">Bem-vindo de volta, {profile.full_name.split(' ')[0]}!</p>
+          <p className="text-slate-400">Bem-vindo de volta, {profile.full_name?.split(' ')[0] || "Morador"}!</p>
         </div>
         <div className="flex items-center gap-3">
           <CopyButton text={profile.household_id} />

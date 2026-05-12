@@ -19,6 +19,19 @@ interface StatsChartsProps {
 }
 
 export function StatsCharts({ bills }: StatsChartsProps) {
+  if (!bills || bills.length === 0) {
+    return (
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-xl p-8 flex flex-col items-center justify-center text-center">
+           <p className="text-slate-500">Sem dados para gráficos de custos.</p>
+        </div>
+        <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-xl p-8 flex flex-col items-center justify-center text-center">
+           <p className="text-slate-500">Sem dados para despesas.</p>
+        </div>
+      </div>
+    );
+  }
+
   // Process data for Pie Chart (By type)
   const dataByType = bills.reduce((acc: any[], bill) => {
     const typeLabel = bill.type === 'fixed' ? 'Fixas' : 'Variáveis';
