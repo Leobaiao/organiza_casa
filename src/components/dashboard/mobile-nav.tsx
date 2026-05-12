@@ -16,8 +16,8 @@ const navItems = [
   { label: "Home", href: "/dashboard", icon: LayoutDashboard },
   { label: "Contas", href: "/dashboard/bills", icon: Receipt },
   { label: "Pix", href: "/dashboard/transactions/quick", icon: DollarSign },
+  { label: "Membros", href: "/dashboard/members", icon: Users },
   { label: "Extrato", href: "/dashboard/transactions", icon: Wallet },
-  { label: "Ajustes", href: "/dashboard/settings", icon: Settings },
 ];
 
 export function MobileNav() {
