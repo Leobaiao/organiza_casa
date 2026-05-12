@@ -7,14 +7,15 @@ import {
   Receipt, 
   Users, 
   Wallet,
-  Settings 
+  Settings,
+  DollarSign 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Home", href: "/dashboard", icon: LayoutDashboard },
   { label: "Contas", href: "/dashboard/bills", icon: Receipt },
-  { label: "Membros", href: "/dashboard/members", icon: Users },
+  { label: "Pix", href: "/dashboard/transactions/quick", icon: DollarSign },
   { label: "Extrato", href: "/dashboard/transactions", icon: Wallet },
   { label: "Ajustes", href: "/dashboard/settings", icon: Settings },
 ];

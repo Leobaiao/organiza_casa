@@ -46,17 +46,49 @@ export default async function DashboardPage() {
         </div>
         <div className="flex items-center gap-3">
           <CopyButton text={profile.household_id} />
-          <Link href="/dashboard/bills/new">
+          <Link href="/dashboard/bills/new" className="hidden md:block">
             <Button className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2">
               <Plus className="h-4 w-4" /> Nova Conta
             </Button>
           </Link>
-          <Link href="/dashboard/transactions/new">
-            <Button variant="outline" className="border-slate-800 bg-slate-900/50 hover:bg-slate-800 text-emerald-400 gap-2">
-              <Wallet className="h-4 w-4" /> Registrar Pagamento
-            </Button>
-          </Link>
         </div>
+      </div>
+
+      {/* Quick Access Actions */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Link href="/dashboard/transactions/quick" className="col-span-2">
+          <div className="relative overflow-hidden group h-24 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 p-4 shadow-lg shadow-emerald-900/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+            <div className="relative z-10 flex flex-col justify-between h-full">
+              <div className="flex items-center justify-between">
+                <div className="h-8 w-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                  <DollarSign className="h-5 w-5" />
+                </div>
+                <ArrowUpRight className="h-5 w-5 text-white/50 group-hover:text-white transition-colors" />
+              </div>
+              <p className="font-bold text-white text-lg">Pagar Agora (Pix)</p>
+            </div>
+            <div className="absolute -right-4 -bottom-4 h-24 w-24 rounded-full bg-white/10 blur-2xl group-hover:bg-white/20 transition-all" />
+          </div>
+        </Link>
+        
+        <Link href="/dashboard/bills/new" className="md:hidden">
+          <div className="h-24 rounded-2xl bg-slate-900 border border-slate-800 p-4 flex flex-col justify-between hover:border-indigo-500/50 transition-all">
+            <div className="h-8 w-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+              <Plus className="h-5 w-5" />
+            </div>
+            <p className="font-bold text-white">Nova Conta</p>
+          </div>
+        </Link>
+
+        <Link href="/dashboard/members" className="hidden md:flex">
+          {/* Desktop only members shortcut */}
+          <div className="h-24 rounded-2xl bg-slate-900 border border-slate-800 p-4 flex flex-col justify-between hover:border-indigo-500/50 transition-all w-full">
+            <div className="h-8 w-8 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+              <TrendingUp className="h-5 w-5" />
+            </div>
+            <p className="font-bold text-white">Membros</p>
+          </div>
+        </Link>
       </div>
 
       {/* Stats Grid */}
