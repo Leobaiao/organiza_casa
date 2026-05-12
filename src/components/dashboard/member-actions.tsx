@@ -38,17 +38,15 @@ export function MemberActions({ memberId, memberName, currentRole }: MemberActio
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white h-8 w-8">
-            <MoreVertical className="h-4 w-4" />
-          </Button>
+        <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8 text-slate-400 hover:text-white">
+          <MoreVertical className="h-4 w-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="bg-slate-900 border-slate-800 text-slate-300">
           <form action={toggleAction}>
             <input type="hidden" name="memberId" value={memberId} />
             <input type="hidden" name="currentRole" value={currentRole} />
-            <DropdownMenuItem asChild>
-              <button type="submit" className="w-full flex items-center gap-2 cursor-pointer">
+            <DropdownMenuItem className="w-full flex items-center gap-2 cursor-pointer outline-none">
+              <button type="submit" className="w-full flex items-center gap-2 text-left bg-transparent border-none p-0 cursor-pointer">
                 {isAdmin ? (
                   <>
                     <ShieldAlert className="h-4 w-4 text-amber-500" />
