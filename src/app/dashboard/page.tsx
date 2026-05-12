@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wallet, Receipt, TrendingUp, ArrowUpRight, Plus, Calendar } from "lucide-react";
+import { Wallet, Receipt, TrendingUp, ArrowUpRight, Plus, Calendar, DollarSign } from "lucide-react";
 import { getUser, getProfile } from "@/lib/supabase/user";
 import { getDashboardStats } from "@/lib/supabase/stats";
 import { getHouseholdMembers } from "@/lib/supabase/members";
