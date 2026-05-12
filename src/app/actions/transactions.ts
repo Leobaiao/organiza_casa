@@ -12,6 +12,7 @@ export async function registerPayment(formData: FormData) {
   const amount = formData.get("amount") as string;
   const description = formData.get("description") as string;
   const householdId = formData.get("householdId") as string;
+  const billId = formData.get("billId") as string;
 
   if (!amount || !householdId) {
     return { error: "Valor e ID da casa são obrigatórios." };
@@ -25,7 +26,8 @@ export async function registerPayment(formData: FormData) {
       amount: parseFloat(amount),
       description: description || "Pagamento registrado",
       status: "confirmed",
-      household_id: householdId
+      household_id: householdId,
+      bill_id: billId || null
     });
 
   if (error) {

@@ -5,10 +5,12 @@ import { getUser, getProfile } from "@/lib/supabase/user";
 import { getDashboardStats } from "@/lib/supabase/stats";
 import { getHouseholdMembers } from "@/lib/supabase/members";
 import { getTransactions } from "@/lib/supabase/transactions";
+import { getBills } from "@/lib/supabase/bills";
 import { redirect } from "next/navigation";
 import { CopyButton } from "@/components/dashboard/copy-button";
 import { AddBillDialog } from "@/components/dashboard/add-bill-dialog";
 import { AddTransactionDialog } from "@/components/dashboard/add-transaction-dialog";
+import { StatsCharts } from "@/components/dashboard/stats-charts";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -24,10 +26,11 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
-  const [stats, members, transactions] = await Promise.all([
+  const [stats, members, transactions, bills] = await Promise.all([
     getDashboardStats(user.id, profile.household_id),
     getHouseholdMembers(profile.household_id),
-    getTransactions(profile.household_id)
+    getTransactions(profile.household_id),
+    getBills(profile.household_id)
   ]);
 
   const formatCurrency = (value: number) => {
@@ -113,6 +116,9 @@ export default async function DashboardPage() {
           icon={<Calendar className="h-5 w-5 text-cyan-400" />}
         />
       </div>
+      
+      {/* Visual Analytics */}
+      <StatsCharts bills={bills} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Upcoming Bills List */}
