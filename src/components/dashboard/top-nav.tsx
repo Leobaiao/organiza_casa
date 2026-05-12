@@ -61,7 +61,7 @@ export function TopNav({ profile }: { profile: any }) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-slate-800" />
-              <form action={logout}>
+              <form action={async () => { await logout(); }}>
                 <DropdownMenuItem className="p-0">
                   <button type="submit" className="flex w-full items-center gap-2 px-2 py-1.5 text-rose-400 cursor-pointer focus:bg-rose-500/10 focus:text-rose-400">
                     <LogOut className="h-4 w-4" />

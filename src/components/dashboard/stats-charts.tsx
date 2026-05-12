@@ -24,10 +24,10 @@ export function StatsCharts({ bills }: StatsChartsProps) {
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-xl p-8 flex flex-col items-center justify-center text-center">
            <p className="text-slate-500">Sem dados para gráficos de custos.</p>
-        </div>
+        </Card>
         <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-xl p-8 flex flex-col items-center justify-center text-center">
            <p className="text-slate-500">Sem dados para despesas.</p>
-        </div>
+        </Card>
       </div>
     );
   }
