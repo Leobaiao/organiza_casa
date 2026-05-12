@@ -26,8 +26,6 @@ export function OnboardingContent() {
     }
   }, [createState, joinState, router]);
 
-
-
   if (mode === "choice") {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
@@ -39,10 +37,7 @@ export function OnboardingContent() {
         <div className="grid md:grid-cols-2 gap-6 w-full max-w-4xl">
           <button 
             type="button"
-            onClick={() => {
-
-              setMode("create");
-            }}
+            onClick={() => setMode("create")}
             className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-left transition-all hover:border-indigo-500/50 hover:bg-slate-900"
           >
             <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
@@ -55,10 +50,7 @@ export function OnboardingContent() {
 
           <button 
             type="button"
-            onClick={() => {
-
-              setMode("join");
-            }}
+            onClick={() => setMode("join")}
             className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-left transition-all hover:border-cyan-500/50 hover:bg-slate-900"
           >
             <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 group-hover:bg-cyan-500 group-hover:text-white transition-colors">
@@ -75,7 +67,7 @@ export function OnboardingContent() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-md border-slate-800 bg-slate-900/50 backdrop-blur-xl">
+      <Card className="w-full max-w-md border-slate-800 bg-slate-900/50 backdrop-blur-xl overflow-hidden">
         <CardHeader>
           <div className="flex items-center gap-2 mb-2">
             <Button variant="ghost" size="sm" onClick={() => setMode("choice")} className="text-slate-400 hover:text-white p-0 h-auto">
@@ -91,22 +83,23 @@ export function OnboardingContent() {
               : "Insira o ID único da casa que você deseja participar."}
           </CardDescription>
         </CardHeader>
-        <CardContent className="relative">
-          {(createState?.success || joinState?.success) && (
-            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-sm animate-in fade-in zoom-in duration-300 rounded-2xl p-6 text-center">
-              <div className="h-20 w-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4 animate-bounce">
-                <Check className="h-10 w-10 text-emerald-400 stroke-[3px]" />
+        
+        <form action={mode === "create" ? createAction : joinAction}>
+          <CardContent className="space-y-4 relative">
+            {(createState?.success || joinState?.success) && (
+              <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-sm animate-in fade-in zoom-in duration-300 p-6 text-center">
+                <div className="h-20 w-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4 animate-bounce">
+                  <Check className="h-10 w-10 text-emerald-400 stroke-[3px]" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">
+                  {createState?.success ? "Casa Criada!" : "Você Entrou na Casa!"}
+                </h3>
+                <p className="text-slate-400 text-sm">
+                  Tudo pronto para começar a organizar. Redirecionando...
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">
-                {createState?.success ? "Casa Criada!" : "Você Entrou na Casa!"}
-              </h3>
-              <p className="text-slate-400 text-sm">
-                Tudo pronto para começar a organizar. Redirecionando...
-              </p>
-            </div>
-          )}
+            )}
 
-          <form action={mode === "create" ? createAction : joinAction}>
             <div className="space-y-2">
               <Label htmlFor={mode === "create" ? "name" : "householdId"} className="text-slate-300">
                 {mode === "create" ? "Nome da Casa" : "ID da Casa"}
