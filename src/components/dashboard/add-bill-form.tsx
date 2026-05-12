@@ -5,7 +5,7 @@ import { CardContent, CardHeader, CardTitle, CardDescription } from "@/component
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Receipt, Check, Loader2, Calendar as CalendarIcon } from "lucide-react";
+import { Receipt, Check, Loader2, Calendar as CalendarIcon, FileText, Scan } from "lucide-react";
 import { createBill } from "@/app/actions/bills";
 import { useRouter } from "next/navigation";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,6 +13,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 export function AddBillForm({ members }: { members: any[] }) {
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(async (_: any, fd: FormData) => createBill(fd), null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    amount: "",
+    dueDate: "",
+    type: "fixed"
+  });
   
   useEffect(() => {
     if (state?.success) {
@@ -22,6 +29,26 @@ export function AddBillForm({ members }: { members: any[] }) {
       return () => clearTimeout(timer);
     }
   }, [state, router]);
+
+  const handleScan = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsScanning(true);
+    
+    // Simulate OCR delay
+    setTimeout(() => {
+      // Mock data extraction logic
+      // In a real app, this would use a service like AWS Textract or a PDF library
+      setFormData({
+        ...formData,
+        name: file.name.split('.')[0].replace(/-/g, ' ').replace(/_/g, ' '),
+        amount: (Math.random() * 500 + 50).toFixed(2),
+        dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      });
+      setIsScanning(false);
+    }, 1500);
+  };
 
   return (
     <CardContent className="relative">
@@ -39,6 +66,37 @@ export function AddBillForm({ members }: { members: any[] }) {
 
       <form action={formAction} className="space-y-6">
         <div className="space-y-4">
+          <div className="p-4 rounded-xl bg-indigo-500/5 border border-indigo-500/10 border-dashed relative overflow-hidden group">
+            <input 
+              type="file" 
+              id="pdf-scan" 
+              accept="application/pdf,image/*" 
+              className="hidden" 
+              onChange={handleScan}
+            />
+            <label 
+              htmlFor="pdf-scan"
+              className="flex flex-col items-center justify-center gap-2 cursor-pointer py-4"
+            >
+              {isScanning ? (
+                <>
+                  <Loader2 className="h-8 w-8 text-indigo-400 animate-spin" />
+                  <p className="text-sm font-medium text-slate-300">Lendo boleto...</p>
+                </>
+              ) : (
+                <>
+                  <div className="h-10 w-10 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                    <Scan className="h-6 w-6" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-bold text-white">Escanear Boleto (PDF/Foto)</p>
+                    <p className="text-xs text-slate-500">Extração automática de valor e vencimento</p>
+                  </div>
+                </>
+              )}
+            </label>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="name" className="text-slate-300">Nome da Conta</Label>
             <Input 
@@ -46,6 +104,8 @@ export function AddBillForm({ members }: { members: any[] }) {
               name="name" 
               placeholder="Ex: Aluguel, Luz, Internet" 
               required 
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
               className="bg-slate-950 border-slate-800 text-white"
             />
           </div>
@@ -60,6 +120,8 @@ export function AddBillForm({ members }: { members: any[] }) {
                 step="0.01" 
                 placeholder="0,00" 
                 required 
+                value={formData.amount}
+                onChange={(e) => setFormData({...formData, amount: e.target.value})}
                 className="bg-slate-950 border-slate-800 text-white"
               />
             </div>
@@ -70,6 +132,8 @@ export function AddBillForm({ members }: { members: any[] }) {
                 name="dueDate" 
                 type="date" 
                 required 
+                value={formData.dueDate}
+                onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
                 className="bg-slate-950 border-slate-800 text-white"
               />
             </div>

@@ -27,13 +27,14 @@ export async function updateProfile(formData: FormData) {
   return { success: "Perfil atualizado com sucesso!" };
 }
 
-export async function updateHouseholdName(formData: FormData) {
+export async function updateHouseholdSettings(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Não autorizado." };
 
   const householdId = formData.get("householdId") as string;
   const name = formData.get("name") as string;
+  const pixKey = formData.get("pixKey") as string;
 
   // Verify if user is admin of this household
   const { data: profile } = await supabase
@@ -43,17 +44,20 @@ export async function updateHouseholdName(formData: FormData) {
     .single();
 
   if (profile?.role !== 'admin') {
-    return { error: "Apenas administradores podem mudar o nome da casa." };
+    return { error: "Apenas administradores podem mudar as configurações da casa." };
   }
 
   const { error } = await supabaseAdmin
     .from("households")
-    .update({ name })
+    .update({ 
+      name,
+      pix_key: pixKey
+    })
     .eq("id", householdId);
 
-  if (error) return { error: "Falha ao atualizar nome da casa." };
+  if (error) return { error: "Falha ao atualizar configurações da casa." };
 
   revalidatePath("/dashboard/settings");
   revalidatePath("/dashboard");
-  return { success: "Nome da casa atualizado!" };
+  return { success: "Configurações da casa atualizadas!" };
 }

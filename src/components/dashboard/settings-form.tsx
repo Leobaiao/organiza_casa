@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { updateProfile, updateHouseholdName } from "@/app/actions/settings";
+import { updateProfile, updateHouseholdSettings } from "@/app/actions/settings";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,7 @@ import { User, Home, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
 export function SettingsForm({ profile }: { profile: any }) {
   const [profileState, profileAction, isUpdatingProfile] = useActionState(async (_: any, fd: FormData) => updateProfile(fd), null);
-  const [houseState, houseAction, isUpdatingHouse] = useActionState(async (_: any, fd: FormData) => updateHouseholdName(fd), null);
+  const [houseState, houseAction, isUpdatingHouse] = useActionState(async (_: any, fd: FormData) => updateHouseholdSettings(fd), null);
 
   return (
     <div className="grid gap-8">
@@ -83,14 +83,26 @@ export function SettingsForm({ profile }: { profile: any }) {
           <CardContent>
             <form action={houseAction} className="space-y-4">
               <input type="hidden" name="householdId" value={profile?.household_id} />
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-slate-300">Nome da Casa</Label>
-                <Input 
-                  id="name" 
-                  name="name" 
-                  defaultValue={profile?.households?.name} 
-                  className="bg-slate-950 border-slate-800 text-white"
-                />
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-slate-300">Nome da Casa</Label>
+                  <Input 
+                    id="name" 
+                    name="name" 
+                    defaultValue={profile?.households?.name} 
+                    className="bg-slate-950 border-slate-800 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="pixKey" className="text-slate-300">Chave Pix da Casa (para receber)</Label>
+                  <Input 
+                    id="pixKey" 
+                    name="pixKey" 
+                    placeholder="CPF, E-mail, Celular ou Aleatória"
+                    defaultValue={profile?.households?.pix_key} 
+                    className="bg-slate-950 border-slate-800 text-white"
+                  />
+                </div>
               </div>
 
               {houseState?.success && (

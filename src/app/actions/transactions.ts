@@ -13,9 +13,33 @@ export async function registerPayment(formData: FormData) {
   const description = formData.get("description") as string;
   const householdId = formData.get("householdId") as string;
   const billId = formData.get("billId") as string;
+  const receiptFile = formData.get("receipt") as File | null;
 
   if (!amount || !householdId) {
     return { error: "Valor e ID da casa são obrigatórios." };
+  }
+
+  let receiptUrl = null;
+
+  // Handle file upload if present
+  if (receiptFile && receiptFile.size > 0) {
+    const fileExt = receiptFile.name.split('.').pop();
+    const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+    const filePath = `receipts/${fileName}`;
+
+    const { error: uploadError, data } = await supabase.storage
+      .from('households') // Using 'households' bucket or create 'receipts'
+      .upload(filePath, receiptFile);
+
+    if (!uploadError) {
+      const { data: { publicUrl } } = supabase.storage
+        .from('households')
+        .getPublicUrl(filePath);
+      receiptUrl = publicUrl;
+    } else {
+      console.error("Upload error:", uploadError);
+      // We continue even if upload fails, but we could return error
+    }
   }
 
   // Insert transaction as a credit (positive amount)
@@ -27,7 +51,8 @@ export async function registerPayment(formData: FormData) {
       description: description || "Pagamento registrado",
       status: "confirmed",
       household_id: householdId,
-      bill_id: billId || null
+      bill_id: billId || null,
+      receipt_url: receiptUrl
     });
 
   if (error) {

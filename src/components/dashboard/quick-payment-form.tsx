@@ -5,7 +5,7 @@ import { CardContent, CardHeader, CardTitle, CardDescription } from "@/component
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DollarSign, Send, Copy, CheckCircle2, Check, Loader2 } from "lucide-react";
+import { DollarSign, Send, Copy, CheckCircle2, Check, Loader2, FileText, Camera, Paperclip } from "lucide-react";
 import { registerPayment } from "@/app/actions/transactions";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect } from "react";
@@ -104,6 +104,40 @@ export function QuickPaymentForm({ householdId, pixKey }: { householdId: string,
                 placeholder="Ex: Pix do mês, luz..." 
                 className="bg-slate-950 border-slate-800 text-white h-12 rounded-xl"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-slate-300">Anexar Comprovante (Opcional)</Label>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Input 
+                    id="receipt" 
+                    name="receipt" 
+                    type="file" 
+                    accept="image/*,application/pdf"
+                    className="hidden" 
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const label = document.getElementById('file-label');
+                        if (label) label.innerText = file.name;
+                      }
+                    }}
+                  />
+                  <label 
+                    htmlFor="receipt"
+                    id="file-label"
+                    className="flex items-center gap-2 px-4 h-12 bg-slate-950 border border-slate-800 border-dashed rounded-xl text-sm text-slate-500 hover:border-emerald-500/50 hover:text-slate-300 cursor-pointer transition-all truncate"
+                  >
+                    <Paperclip className="h-4 w-4 shrink-0" />
+                    Selecionar Comprovante...
+                  </label>
+                </div>
+                <Button type="button" variant="outline" className="h-12 border-slate-800 bg-slate-950 text-slate-400 gap-2">
+                  <Camera className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-[10px] text-slate-500 italic">Formatos: JPG, PNG ou PDF.</p>
             </div>
           </div>
 
