@@ -14,6 +14,7 @@ export async function registerPayment(formData: FormData) {
   const householdId = formData.get("householdId") as string;
   const billId = formData.get("billId") as string;
   const receiptFile = formData.get("receipt") as File | null;
+  const receiptUrlFromForm = formData.get("receiptUrl") as string | null;
 
   if (!amount || !householdId) {
     return { error: "Valor e ID da casa são obrigatórios." };
@@ -52,7 +53,7 @@ export async function registerPayment(formData: FormData) {
       status: "confirmed",
       household_id: householdId,
       bill_id: billId || null,
-      receipt_url: receiptUrl
+      receipt_url: receiptUrlFromForm || receiptUrl
     });
 
   if (error) {
