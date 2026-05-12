@@ -12,10 +12,21 @@ export async function POST(request: NextRequest) {
 
   try {
     const formData = await request.formData();
-    const file = formData.get("receipt") as File;
+    let file = formData.get("receipt") as File;
 
-    if (!file) {
-      return redirect("/dashboard");
+    // Fallback: search for any file if "receipt" is not found
+    if (!file || !(file instanceof File)) {
+      for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          file = value;
+          break;
+        }
+      }
+    }
+
+    if (!file || !(file instanceof File) || file.size === 0) {
+      console.error("No valid file found in share target");
+      return redirect("/dashboard?error=Arquivo não encontrado");
     }
 
     // Upload to a temporary folder in our receipts bucket
