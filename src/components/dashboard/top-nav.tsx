@@ -46,7 +46,7 @@ export function TopNav({ profile }: { profile: any }) {
               </div>
             </Link>
 
-            <form action={logout}>
+            <form action={async () => { await logout(); }}>
               <button 
                 type="submit"
                 className="h-9 w-9 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-rose-400 hover:border-rose-500/30 transition-all active:scale-95"
