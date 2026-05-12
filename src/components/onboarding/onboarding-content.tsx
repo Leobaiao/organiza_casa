@@ -6,12 +6,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Home, UserPlus, Loader2 } from "lucide-react";
+import { Home, UserPlus, Loader2, Check } from "lucide-react";
+
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export function OnboardingContent() {
+  const router = useRouter();
   const [mode, setMode] = useState<"choice" | "create" | "join">("choice");
   const [createState, createAction, isCreating] = useActionState(async (_: any, fd: FormData) => createHousehold(fd), null);
   const [joinState, joinAction, isJoining] = useActionState(async (_: any, fd: FormData) => joinHousehold(fd), null);
+
+  useEffect(() => {
+    if (createState?.success || joinState?.success) {
+      const timer = setTimeout(() => {
+        router.push("/dashboard");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [createState, joinState, router]);
 
 
 
@@ -78,8 +91,22 @@ export function OnboardingContent() {
               : "Insira o ID único da casa que você deseja participar."}
           </CardDescription>
         </CardHeader>
-        <form action={mode === "create" ? createAction : joinAction}>
-          <CardContent className="space-y-4">
+        <CardContent className="relative">
+          {(createState?.success || joinState?.success) && (
+            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-sm animate-in fade-in zoom-in duration-300 rounded-2xl p-6 text-center">
+              <div className="h-20 w-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4 animate-bounce">
+                <Check className="h-10 w-10 text-emerald-400 stroke-[3px]" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">
+                {createState?.success ? "Casa Criada!" : "Você Entrou na Casa!"}
+              </h3>
+              <p className="text-slate-400 text-sm">
+                Tudo pronto para começar a organizar. Redirecionando...
+              </p>
+            </div>
+          )}
+
+          <form action={mode === "create" ? createAction : joinAction}>
             <div className="space-y-2">
               <Label htmlFor={mode === "create" ? "name" : "householdId"} className="text-slate-300">
                 {mode === "create" ? "Nome da Casa" : "ID da Casa"}
@@ -102,9 +129,13 @@ export function OnboardingContent() {
             <Button 
               type="submit"
               className={`w-full ${mode === "create" ? "bg-indigo-600 hover:bg-indigo-500" : "bg-cyan-600 hover:bg-cyan-500"} text-white transition-all`} 
-              disabled={isCreating || isJoining}
+              disabled={isCreating || isJoining || !!createState?.success || !!joinState?.success}
             >
-              {isCreating || isJoining ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (mode === "create" ? "Criar Agora" : "Entrar na Casa")}
+              {isCreating || isJoining ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                mode === "create" ? "Criar Agora" : "Entrar na Casa"
+              )}
             </Button>
           </CardFooter>
         </form>

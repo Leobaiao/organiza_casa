@@ -60,7 +60,7 @@ export async function createHousehold(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  return { success: true };
 }
 
 export async function joinHousehold(formData: FormData) {
@@ -99,5 +99,5 @@ export async function joinHousehold(formData: FormData) {
 
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  return { success: true };
 }
