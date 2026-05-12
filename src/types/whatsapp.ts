@@ -34,6 +34,7 @@ export interface EvolutionWebhookPayload {
     messageTimestamp: number;
     owner: string;
     source: string;
+    sender: string;
   };
 }
 
