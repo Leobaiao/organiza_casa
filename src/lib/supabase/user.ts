@@ -18,7 +18,7 @@ export async function getProfile(userId: string) {
   
   // Diagnostic log
   const { data: { user } } = await supabase.auth.getUser();
-  console.log(`[getProfile] Requesting profile for: ${userId}. Auth user: ${user?.id}`);
+
 
   const { data, error } = await supabase
     .from("profiles")
@@ -31,6 +31,6 @@ export async function getProfile(userId: string) {
     return null;
   }
   
-  console.log(`[getProfile] Success! Household ID: ${data?.household_id}`);
+
   return data;
 }

@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     if (admins && admins.length > 0) {
       // Logic to send WhatsApp message to admin would go here.
       // Example: notifyAdminViaWhatsApp(admins[0].whatsapp_number, profile.full_name, amount);
-      console.log(`Notify Admin (${admins[0].whatsapp_number}): ${profile.full_name} sent a proof.`);
+
     }
 
     return NextResponse.json({ 

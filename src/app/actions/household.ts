@@ -24,7 +24,7 @@ export async function createHousehold(formData: FormData) {
     return { error: hError.message };
   }
 
-  console.log("[createHousehold] House created:", household.id);
+
 
   // 2. Upsert profile — creates if missing, updates if exists
   const { data: upsertedProfile, error: pError } = await supabaseAdmin
@@ -43,7 +43,7 @@ export async function createHousehold(formData: FormData) {
     return { error: pError.message };
   }
 
-  console.log("[createHousehold] Upserted profile:", JSON.stringify(upsertedProfile));
+
 
   // 3. Verification read — confirm it's actually in the DB
   const { data: verify } = await supabaseAdmin
@@ -52,7 +52,7 @@ export async function createHousehold(formData: FormData) {
     .eq("id", user.id)
     .single();
 
-  console.log("[createHousehold] Verification read:", JSON.stringify(verify));
+
 
   if (!verify?.household_id) {
     console.error("[createHousehold] CRITICAL: household_id is still null after upsert!");
@@ -96,7 +96,7 @@ export async function joinHousehold(formData: FormData) {
     return { error: pError.message };
   }
 
-  console.log("[joinHousehold] Upserted profile:", JSON.stringify(upsertedProfile));
+
 
   revalidatePath("/", "layout");
   redirect("/dashboard");

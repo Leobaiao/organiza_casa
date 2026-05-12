@@ -13,7 +13,7 @@ export function OnboardingContent() {
   const [createState, createAction, isCreating] = useActionState(async (_: any, fd: FormData) => createHousehold(fd), null);
   const [joinState, joinAction, isJoining] = useActionState(async (_: any, fd: FormData) => joinHousehold(fd), null);
 
-  console.log("OnboardingContent rendered, mode:", mode);
+
 
   if (mode === "choice") {
     return (
@@ -27,7 +27,7 @@ export function OnboardingContent() {
           <button 
             type="button"
             onClick={() => {
-              console.log("Create button clicked");
+
               setMode("create");
             }}
             className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-left transition-all hover:border-indigo-500/50 hover:bg-slate-900"
@@ -43,7 +43,7 @@ export function OnboardingContent() {
           <button 
             type="button"
             onClick={() => {
-              console.log("Join button clicked");
+
               setMode("join");
             }}
             className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-left transition-all hover:border-cyan-500/50 hover:bg-slate-900"
