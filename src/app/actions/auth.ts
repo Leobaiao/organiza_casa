@@ -50,6 +50,7 @@ export async function signup(formData: FormData) {
     email,
     password,
     options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://organiza-casa.vercel.app"}/auth/callback`,
       data: {
         full_name: fullName,
       },
