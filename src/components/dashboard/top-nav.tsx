@@ -1,5 +1,15 @@
-import { Bell, Search, User } from "lucide-react";
+import { Bell, Search, User, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import Link from "next/link";
+import { logout } from "@/app/actions/auth";
 
 export function TopNav({ profile }: { profile: any }) {
   return (
@@ -28,11 +38,39 @@ export function TopNav({ profile }: { profile: any }) {
             <p className="text-sm font-medium text-white leading-none mb-1">{profile?.full_name}</p>
             <p className="text-xs text-slate-500 capitalize">{profile?.role}</p>
           </div>
-          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 p-0.5">
-            <div className="h-full w-full rounded-full bg-slate-950 flex items-center justify-center">
-              <User className="h-5 w-5 text-indigo-400" />
-            </div>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 p-0.5 outline-none transition-transform active:scale-95">
+                <div className="h-full w-full rounded-full bg-slate-950 flex items-center justify-center">
+                  <User className="h-5 w-5 text-indigo-400" />
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 bg-slate-900 border-slate-800 text-slate-300">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none text-white">{profile?.full_name}</p>
+                  <p className="text-xs leading-none text-slate-400">{profile?.role} • {profile?.households?.name}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-slate-800" />
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/settings" className="flex w-full items-center gap-2 cursor-pointer">
+                  <Settings className="h-4 w-4" />
+                  <span>Configurações</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-slate-800" />
+              <form action={logout}>
+                <DropdownMenuItem asChild>
+                  <button type="submit" className="flex w-full items-center gap-2 text-rose-400 cursor-pointer focus:bg-rose-500/10 focus:text-rose-400">
+                    <LogOut className="h-4 w-4" />
+                    <span>Sair</span>
+                  </button>
+                </DropdownMenuItem>
+              </form>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
