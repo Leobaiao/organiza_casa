@@ -47,7 +47,7 @@ export function Sidebar({ className }: { className?: string }) {
       </nav>
 
       <div className="p-4 border-t border-slate-800">
-        <form action={logout}>
+        <form action={async () => { "use server"; await logout(); }}>
           <button className="flex w-full items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all group">
             <LogOut className="h-5 w-5 group-hover:text-rose-400 transition-colors" />
             <span className="font-medium">Sair</span>
