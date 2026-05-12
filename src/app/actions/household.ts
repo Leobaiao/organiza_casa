@@ -5,13 +5,11 @@ import { getUser } from "@/lib/supabase/user";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-export async function createHousehold(prevStateOrFormData: any, formData?: FormData) {
-  // Support both useActionState (prevState, formData) and direct form action (formData)
-  const fd = formData instanceof FormData ? formData : prevStateOrFormData as FormData;
+export async function createHousehold(formData: FormData) {
   const user = await getUser();
   if (!user) return { error: "Não autorizado." };
 
-  const name = fd.get("name") as string;
+  const name = formData.get("name") as string;
   if (!name) return { error: "O nome da casa é obrigatório." };
 
   // 1. Create household
@@ -65,12 +63,11 @@ export async function createHousehold(prevStateOrFormData: any, formData?: FormD
   redirect("/dashboard");
 }
 
-export async function joinHousehold(prevStateOrFormData: any, formData?: FormData) {
-  const fd = formData instanceof FormData ? formData : prevStateOrFormData as FormData;
+export async function joinHousehold(formData: FormData) {
   const user = await getUser();
   if (!user) return { error: "Não autorizado." };
 
-  const householdId = fd.get("householdId") as string;
+  const householdId = formData.get("householdId") as string;
   if (!householdId) return { error: "O ID da casa é obrigatório." };
 
   // Check if household exists

@@ -10,8 +10,8 @@ import { Home, UserPlus, Loader2 } from "lucide-react";
 
 export function OnboardingContent() {
   const [mode, setMode] = useState<"choice" | "create" | "join">("choice");
-  const [createState, createAction, isCreating] = useActionState(createHousehold, null);
-  const [joinState, joinAction, isJoining] = useActionState(joinHousehold, null);
+  const [createState, createAction, isCreating] = useActionState(async (_: any, fd: FormData) => createHousehold(fd), null);
+  const [joinState, joinAction, isJoining] = useActionState(async (_: any, fd: FormData) => joinHousehold(fd), null);
 
   console.log("OnboardingContent rendered, mode:", mode);
 

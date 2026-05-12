@@ -10,7 +10,7 @@ import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
 export default function SignupPage() {
-  const [state, formAction, isPending] = useActionState(signup, null);
+  const [state, formAction, isPending] = useActionState(async (_: any, fd: FormData) => signup(fd), null);
 
   return (
     <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-xl">

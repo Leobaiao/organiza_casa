@@ -22,7 +22,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function AddBillDialog({ members }: { members: any[] }) {
   const [open, setOpen] = useState(false);
-  const [state, formAction, isPending] = useActionState(createBill, null);
+  const [state, formAction, isPending] = useActionState(async (_: any, fd: FormData) => createBill(fd), null);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

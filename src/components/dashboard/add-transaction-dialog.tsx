@@ -19,7 +19,7 @@ import { Loader2, DollarSign } from "lucide-react";
 
 export function AddTransactionDialog({ householdId }: { householdId: string }) {
   const [open, setOpen] = useState(false);
-  const [state, formAction, isPending] = useActionState(registerPayment, null);
+  const [state, formAction, isPending] = useActionState(async (_: any, fd: FormData) => registerPayment(fd), null);
 
   useEffect(() => {
     if (state?.success) {

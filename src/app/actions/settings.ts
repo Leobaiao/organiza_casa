@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 
-export async function updateProfile(prevState: any, formData: FormData) {
+export async function updateProfile(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Não autorizado." };
@@ -27,7 +27,7 @@ export async function updateProfile(prevState: any, formData: FormData) {
   return { success: "Perfil atualizado com sucesso!" };
 }
 
-export async function updateHouseholdName(prevState: any, formData: FormData) {
+export async function updateHouseholdName(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Não autorizado." };

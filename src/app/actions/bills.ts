@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getUser } from "@/lib/supabase/user";
 import { revalidatePath } from "next/cache";
 
-export async function createBill(prevState: any, formData: FormData) {
+export async function createBill(formData: FormData) {
   const user = await getUser();
   if (!user) return { error: "Não autorizado." };
 

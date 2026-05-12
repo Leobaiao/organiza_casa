@@ -10,8 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { User, Home, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
 export function SettingsForm({ profile }: { profile: any }) {
-  const [profileState, profileAction, isUpdatingProfile] = useActionState(updateProfile, null);
-  const [houseState, houseAction, isUpdatingHouse] = useActionState(updateHouseholdName, null);
+  const [profileState, profileAction, isUpdatingProfile] = useActionState(async (_: any, fd: FormData) => updateProfile(fd), null);
+  const [houseState, houseAction, isUpdatingHouse] = useActionState(async (_: any, fd: FormData) => updateHouseholdName(fd), null);
 
   return (
     <div className="grid gap-8">
