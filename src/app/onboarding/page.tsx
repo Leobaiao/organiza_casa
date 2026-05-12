@@ -86,7 +86,14 @@ export default async function OnboardingPage({
               : "Insira o ID único da casa que você deseja participar."}
           </CardDescription>
         </CardHeader>
-        <form action={formAction}>
+        <form action={async (fd) => {
+          "use server";
+          if (isCreate) {
+            await createHousehold(fd);
+          } else {
+            await joinHousehold(fd);
+          }
+        }}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor={isCreate ? "name" : "householdId"} className="text-slate-300">

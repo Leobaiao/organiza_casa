@@ -41,7 +41,7 @@ export default async function NewBillPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={createBill} className="space-y-4">
+          <form action={async (fd) => { "use server"; await createBill(fd); }} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-slate-300">Nome da Conta</Label>
               <Input id="name" name="name" placeholder="Ex: Aluguel, Luz, Internet" required className="bg-slate-950 border-slate-800 text-white" />

@@ -38,7 +38,7 @@ export default async function NewTransactionPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={registerPayment} className="space-y-4">
+          <form action={async (fd) => { "use server"; await registerPayment(fd); }} className="space-y-4">
             <input type="hidden" name="householdId" value={profile.household_id} />
             
             <div className="space-y-2">
