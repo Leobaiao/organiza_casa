@@ -28,12 +28,12 @@ export async function registerPayment(formData: FormData) {
     const filePath = `receipts/${fileName}`;
 
     const { error: uploadError, data } = await supabase.storage
-      .from('households') // Using 'households' bucket or create 'receipts'
+      .from('receipts') 
       .upload(filePath, receiptFile);
 
     if (!uploadError) {
       const { data: { publicUrl } } = supabase.storage
-        .from('households')
+        .from('receipts')
         .getPublicUrl(filePath);
       receiptUrl = publicUrl;
     } else {
