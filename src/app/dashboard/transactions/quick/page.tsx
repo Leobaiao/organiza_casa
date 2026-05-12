@@ -18,8 +18,8 @@ export default async function QuickPaymentPage() {
 
   if (!profile?.household_id) redirect("/onboarding");
 
-  // In a real app, this would come from household settings
-  const pixKey = "pix@organizacasa.com";
+  // Get real pix key from household settings
+  const pixKey = profile.households?.pix_key || "Chave não cadastrada";
 
   return (
     <div className="min-h-screen bg-slate-950 pb-20 pt-4 px-4 overflow-x-hidden">
