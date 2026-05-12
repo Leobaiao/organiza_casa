@@ -30,6 +30,12 @@ export function BillCard({ bill, members, allTransactions }: BillCardProps) {
   const [deleteState, deleteAction, isDeleting] = useActionState(async (_: any, fd: FormData) => deleteBill(bill.id), null);
   const [updateState, updateAction, isUpdating] = useActionState(async (_: any, fd: FormData) => updateBill(fd), null);
 
+  useEffect(() => {
+    if (updateState?.success) {
+      setIsEditing(false);
+    }
+  }, [updateState]);
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -120,10 +126,7 @@ export function BillCard({ bill, members, allTransactions }: BillCardProps) {
           </DialogHeader>
 
           {isEditing ? (
-            <form action={async (fd) => {
-              const res = await updateAction(fd);
-              if (res?.success) setIsEditing(false);
-            }} className="space-y-4 py-4">
+            <form action={updateAction} className="space-y-4 py-4">
               <input type="hidden" name="billId" value={bill.id} />
               <div className="space-y-2">
                 <Label htmlFor="name">Nome</Label>
