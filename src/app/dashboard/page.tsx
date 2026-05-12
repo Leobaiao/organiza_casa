@@ -1,0 +1,192 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Wallet, Receipt, TrendingUp, ArrowUpRight, Plus, Calendar } from "lucide-react";
+import { getUser, getProfile } from "@/lib/supabase/user";
+import { getDashboardStats } from "@/lib/supabase/stats";
+import { getHouseholdMembers } from "@/lib/supabase/members";
+import { getTransactions } from "@/lib/supabase/transactions";
+import { redirect } from "next/navigation";
+import { CopyButton } from "@/components/dashboard/copy-button";
+import { AddBillDialog } from "@/components/dashboard/add-bill-dialog";
+import { AddTransactionDialog } from "@/components/dashboard/add-transaction-dialog";
+import Link from "next/link";
+
+export const dynamic = "force-dynamic";
+
+export default async function DashboardPage() {
+  const user = await getUser();
+  if (!user) redirect("/login");
+
+  const profile = await getProfile(user.id);
+  
+  // If no profile or no household, redirect to onboarding
+  if (!profile || !profile.household_id) {
+    redirect("/onboarding");
+  }
+
+  const [stats, members, transactions] = await Promise.all([
+    getDashboardStats(user.id, profile.household_id),
+    getHouseholdMembers(profile.household_id),
+    getTransactions(profile.household_id)
+  ]);
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
+  };
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+          <p className="text-slate-400">Bem-vindo de volta, {profile.full_name.split(' ')[0]}!</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <CopyButton text={profile.household_id} />
+          <Link href="/dashboard/bills/new">
+            <Button className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2">
+              <Plus className="h-4 w-4" /> Nova Conta
+            </Button>
+          </Link>
+          <Link href="/dashboard/transactions/new">
+            <Button variant="outline" className="border-slate-800 bg-slate-900/50 hover:bg-slate-800 text-emerald-400 gap-2">
+              <Wallet className="h-4 w-4" /> Registrar Pagamento
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <StatCard 
+          title="Seu Saldo" 
+          value={formatCurrency(stats.personalBalance)} 
+          description={stats.personalBalance >= 0 ? "Você está no azul!" : "Pendente de pagamento"}
+          icon={<Wallet className="h-5 w-5 text-emerald-400" />}
+          trend={stats.personalBalance >= 0 ? "positive" : "negative"}
+        />
+        <StatCard 
+          title="Total da Casa" 
+          value={formatCurrency(stats.householdTotal)} 
+          description="Gastos totais do mês"
+          icon={<Receipt className="h-5 w-5 text-indigo-400" />}
+        />
+        <StatCard 
+          title="Próximo Vencimento" 
+          value={stats.upcomingBills[0]?.name || "Nenhuma"} 
+          description={stats.upcomingBills[0] ? `Vence em ${new Date(stats.upcomingBills[0].due_date).toLocaleDateString('pt-BR')}` : "Tudo em dia!"}
+          icon={<Calendar className="h-5 w-5 text-cyan-400" />}
+        />
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Upcoming Bills List */}
+        <Card className="lg:col-span-2 border-slate-800 bg-slate-900/50 backdrop-blur-xl">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-white">Próximas Contas</CardTitle>
+              <CardDescription className="text-slate-400">Contas a vencer nos próximos dias.</CardDescription>
+            </div>
+            <Button variant="ghost" size="sm" className="text-indigo-400 hover:text-indigo-300">Ver todas</Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stats.upcomingBills.length > 0 ? (
+                stats.upcomingBills.map((bill: any) => (
+                  <div key={bill.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-950/50 border border-slate-800/50 hover:border-slate-700 transition-all group">
+                    <div className="flex items-center gap-4">
+                      <div className="h-10 w-10 rounded-lg bg-slate-900 flex items-center justify-center text-slate-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-400 transition-all">
+                        <Receipt className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-white">{bill.name}</p>
+                        <p className="text-xs text-slate-500">{new Date(bill.due_date).toLocaleDateString('pt-BR')}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-white">{formatCurrency(bill.total_amount)}</p>
+                      <p className="text-xs text-slate-500 capitalize">{bill.type}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <div className="h-12 w-12 rounded-full bg-slate-900 flex items-center justify-center mx-auto mb-3">
+                    <Calendar className="h-6 w-6 text-slate-600" />
+                  </div>
+                  <p className="text-slate-500">Nenhuma conta pendente para os próximos dias.</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions / Activity */}
+        <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white">Atividade Recente</CardTitle>
+            <CardDescription className="text-slate-400">Últimas movimentações da casa.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {transactions.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-slate-500 text-sm">Sem atividades registradas ainda.</p>
+                </div>
+              ) : (
+                transactions.slice(0, 5).map((activity: any) => (
+                  <div key={activity.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-950/50 border border-slate-800/50 hover:border-indigo-500/30 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className={`h-8 w-8 rounded-full flex items-center justify-center ${activity.amount > 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-rose-500/10 text-rose-400"}`}>
+                        {activity.amount > 0 ? <Plus className="h-4 w-4" /> : <Receipt className="h-4 w-4" />}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-white">{activity.description}</p>
+                        <p className="text-xs text-slate-500">{activity.profiles?.full_name}</p>
+                      </div>
+                    </div>
+                    <p className={`text-sm font-bold ${activity.amount > 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                      {activity.amount > 0 ? "+" : ""}{formatCurrency(activity.amount)}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ title, value, description, icon, trend }: { 
+  title: string, 
+  value: string, 
+  description: string, 
+  icon: React.ReactNode,
+  trend?: "positive" | "negative"
+}) {
+  return (
+    <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-xl overflow-hidden relative group transition-all hover:border-slate-700">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium text-slate-400">{title}</CardTitle>
+        <div className="h-8 w-8 rounded-lg bg-slate-800 flex items-center justify-center">
+          {icon}
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold text-white mb-1">{value}</div>
+        <p className="text-xs text-slate-500 flex items-center gap-1">
+          {description}
+          {trend && (
+            <ArrowUpRight className={`h-3 w-3 ${trend === "positive" ? "text-emerald-400" : "text-rose-400"}`} />
+          )}
+        </p>
+      </CardContent>
+      <div className="absolute -right-2 -bottom-2 h-16 w-16 rounded-full bg-indigo-500/5 blur-xl group-hover:bg-indigo-500/10 transition-all" />
+    </Card>
+  );
+}
