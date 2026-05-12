@@ -43,13 +43,14 @@ export function TransactionList({ transactions }: TransactionListProps) {
             <th className="px-6 py-4 font-medium">Data</th>
             <th className="px-6 py-4 font-medium">Membro</th>
             <th className="px-6 py-4 font-medium">Descrição</th>
+            <th className="px-6 py-4 font-medium text-center">Anexo</th>
             <th className="px-6 py-4 font-medium text-right">Valor</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-800/50">
           {data.length === 0 ? (
             <tr>
-              <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+              <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
                 Nenhuma movimentação encontrada nesta categoria.
               </td>
             </tr>
@@ -71,6 +72,21 @@ export function TransactionList({ transactions }: TransactionListProps) {
                 </td>
                 <td className="px-6 py-4">
                   <p className="text-sm text-slate-300">{t.description}</p>
+                </td>
+                <td className="px-6 py-4 text-center">
+                  {t.receipt_url ? (
+                    <a 
+                      href={t.receipt_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all"
+                      title="Ver Comprovante"
+                    >
+                      <Receipt className="h-4 w-4" />
+                    </a>
+                  ) : (
+                    <span className="text-slate-700">-</span>
+                  )}
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
