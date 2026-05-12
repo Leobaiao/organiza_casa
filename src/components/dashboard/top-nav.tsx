@@ -35,43 +35,27 @@ export function TopNav({ profile }: { profile: any }) {
           <Bell className="h-5 w-5" />
         </Button>
         <div className="h-8 w-[1px] bg-slate-800 mx-1 md:mx-2" />
-        <div className="flex items-center gap-3 pl-2">
-          <div className="text-right hidden sm:block">
-            <p className="text-sm font-medium text-white leading-none mb-1">{profile?.full_name}</p>
-            <p className="text-xs text-slate-500 capitalize">{profile?.role}</p>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 p-0.5 outline-none transition-transform active:scale-95">
+          <div className="flex items-center gap-3">
+            <Link 
+              href="/dashboard/settings"
+              className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 p-0.5 outline-none transition-transform active:scale-95 flex items-center justify-center overflow-hidden"
+              title="Configurações"
+            >
               <div className="h-full w-full rounded-full bg-slate-950 flex items-center justify-center">
                 <User className="h-5 w-5 text-indigo-400" />
               </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-slate-900 border-slate-800 text-slate-300">
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none text-white">{profile?.full_name}</p>
-                  <p className="text-xs leading-none text-slate-400">{profile?.role} • {profile?.households?.name}</p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-slate-800" />
-              <DropdownMenuItem className="p-0">
-                <Link href="/dashboard/settings" className="flex w-full items-center gap-2 px-2 py-1.5 cursor-pointer">
-                  <Settings className="h-4 w-4" />
-                  <span>Configurações</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-slate-800" />
-              <form action={async () => { await logout(); }}>
-                <DropdownMenuItem className="p-0">
-                  <button type="submit" className="flex w-full items-center gap-2 px-2 py-1.5 text-rose-400 cursor-pointer focus:bg-rose-500/10 focus:text-rose-400">
-                    <LogOut className="h-4 w-4" />
-                    <span>Sair</span>
-                  </button>
-                </DropdownMenuItem>
-              </form>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+            </Link>
+
+            <form action={logout}>
+              <button 
+                type="submit"
+                className="h-9 w-9 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-rose-400 hover:border-rose-500/30 transition-all active:scale-95"
+                title="Sair"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </form>
+          </div>
       </div>
     </header>
   );
