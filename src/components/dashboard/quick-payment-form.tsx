@@ -5,12 +5,26 @@ import { CardContent, CardHeader, CardTitle, CardDescription } from "@/component
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DollarSign, Send, Copy, CheckCircle2, Check } from "lucide-react";
+import { DollarSign, Send, Copy, CheckCircle2, Check, Loader2 } from "lucide-react";
 import { registerPayment } from "@/app/actions/transactions";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect } from "react";
 
 export function QuickPaymentForm({ householdId, pixKey }: { householdId: string, pixKey: string }) {
+  const router = useRouter();
+  const [state, formAction, isPending] = useActionState(async (_: any, fd: FormData) => registerPayment(fd), null);
   const [amount, setAmount] = useState("");
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (state?.success) {
+      // Small delay to let user see the success state before redirecting
+      const timer = setTimeout(() => {
+        router.push("/dashboard");
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [state, router]);
 
   const copyPix = () => {
     navigator.clipboard.writeText(pixKey);
@@ -29,11 +43,20 @@ export function QuickPaymentForm({ householdId, pixKey }: { householdId: string,
           Registre o pagamento feito para o administrador da casa.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <form action={async (fd) => {
-          await registerPayment(fd);
-          // Redirect or show success
-        }} className="space-y-6">
+      <CardContent className="relative">
+        {state?.success && (
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-sm animate-in fade-in zoom-in duration-300 rounded-2xl p-6 text-center">
+            <div className="h-20 w-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4 animate-bounce">
+              <Check className="h-10 w-10 text-emerald-400 stroke-[3px]" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Pagamento Registrado!</h3>
+            <p className="text-slate-400 text-sm">
+              Sua transação foi enviada para aprovação. Redirecionando...
+            </p>
+          </div>
+        )}
+
+        <form action={formAction} className="space-y-6">
           <input type="hidden" name="householdId" value={householdId} />
           
           <div className="space-y-4">
@@ -114,10 +137,17 @@ export function QuickPaymentForm({ householdId, pixKey }: { householdId: string,
 
           <Button 
             type="submit" 
+            disabled={isPending || !!state?.success}
             className="w-full h-16 bg-emerald-600 hover:bg-emerald-500 text-white text-lg font-bold rounded-2xl shadow-lg shadow-emerald-900/20 transition-all hover:translate-y-[-2px] active:scale-[0.98] flex items-center justify-center gap-2 group"
           >
-            Confirmar Pagamento
-            <Send className="h-5 w-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+            {isPending ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+              <>
+                Confirmar Pagamento
+                <Send className="h-5 w-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </>
+            )}
           </Button>
         </form>
       </CardContent>
