@@ -3,8 +3,9 @@ import { getHouseholdMembers } from "@/lib/supabase/members";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, Shield, UserCircle, Wallet, UserPlus } from "lucide-react";
+import { User, Shield, UserCircle, Wallet, UserPlus, MoreVertical } from "lucide-react";
 import { InviteButton } from "@/components/dashboard/invite-button";
+import { MemberActions } from "@/components/dashboard/member-actions";
 
 export default async function MembersPage() {
   const user = await getUser();
@@ -76,11 +77,21 @@ export default async function MembersPage() {
                   </div>
                 </div>
                 
-                <div className="text-right">
-                  <p className="text-xs text-slate-500 mb-1">Saldo Atual</p>
-                  <p className={`font-bold ${member.balance >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                    {formatCurrency(member.balance)}
-                  </p>
+                <div className="flex items-center gap-6">
+                  <div className="text-right">
+                    <p className="text-xs text-slate-500 mb-1">Saldo Atual</p>
+                    <p className={`font-bold ${member.balance >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                      {formatCurrency(member.balance)}
+                    </p>
+                  </div>
+                  
+                  {profile.role === 'admin' && member.id !== user.id && (
+                    <MemberActions 
+                      memberId={member.id} 
+                      memberName={member.full_name} 
+                      currentRole={member.role} 
+                    />
+                  )}
                 </div>
               </CardContent>
             </Card>
