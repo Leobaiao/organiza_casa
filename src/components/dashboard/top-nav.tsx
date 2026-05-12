@@ -39,12 +39,10 @@ export function TopNav({ profile }: { profile: any }) {
             <p className="text-xs text-slate-500 capitalize">{profile?.role}</p>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 p-0.5 outline-none transition-transform active:scale-95">
-                <div className="h-full w-full rounded-full bg-slate-950 flex items-center justify-center">
-                  <User className="h-5 w-5 text-indigo-400" />
-                </div>
-              </button>
+            <DropdownMenuTrigger className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 p-0.5 outline-none transition-transform active:scale-95">
+              <div className="h-full w-full rounded-full bg-slate-950 flex items-center justify-center">
+                <User className="h-5 w-5 text-indigo-400" />
+              </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 bg-slate-900 border-slate-800 text-slate-300">
               <DropdownMenuLabel className="font-normal">
@@ -54,16 +52,16 @@ export function TopNav({ profile }: { profile: any }) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-slate-800" />
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings" className="flex w-full items-center gap-2 cursor-pointer">
+              <DropdownMenuItem className="p-0">
+                <Link href="/dashboard/settings" className="flex w-full items-center gap-2 px-2 py-1.5 cursor-pointer">
                   <Settings className="h-4 w-4" />
                   <span>Configurações</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-slate-800" />
-              <form action={logout}>
-                <DropdownMenuItem asChild>
-                  <button type="submit" className="flex w-full items-center gap-2 text-rose-400 cursor-pointer focus:bg-rose-500/10 focus:text-rose-400">
+              <form action={async () => { await logout(); }}>
+                <DropdownMenuItem className="p-0">
+                  <button type="submit" className="flex w-full items-center gap-2 px-2 py-1.5 text-rose-400 cursor-pointer focus:bg-rose-500/10 focus:text-rose-400">
                     <LogOut className="h-4 w-4" />
                     <span>Sair</span>
                   </button>
