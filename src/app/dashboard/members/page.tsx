@@ -3,8 +3,8 @@ import { getHouseholdMembers } from "@/lib/supabase/members";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, Shield, UserCircle, Share2, Wallet } from "lucide-react";
-import { CopyButton } from "@/components/dashboard/copy-button";
+import { User, Shield, UserCircle, Wallet, UserPlus } from "lucide-react";
+import { InviteButton } from "@/components/dashboard/invite-button";
 
 export default async function MembersPage() {
   const user = await getUser();
@@ -36,21 +36,18 @@ export default async function MembersPage() {
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* Invitation Card */}
-        <Card className="md:col-span-1 border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl">
+        <Card className="md:col-span-1 border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl h-fit">
           <CardHeader>
-            <div className="h-10 w-10 rounded-lg bg-indigo-600 flex items-center justify-center mb-2">
-              <Share2 className="h-5 w-5 text-white" />
+            <div className="h-10 w-10 rounded-lg bg-indigo-600 flex items-center justify-center mb-2 shadow-lg shadow-indigo-900/20">
+              <UserPlus className="h-5 w-5 text-white" />
             </div>
-            <CardTitle className="text-white">Convidar Membros</CardTitle>
+            <CardTitle className="text-white">Novo Morador</CardTitle>
             <CardDescription className="text-slate-400">
-              Compartilhe este ID com as pessoas que moram com você.
+              Envie um link para que novos moradores entrem automaticamente.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 break-all font-mono text-xs text-indigo-300">
-              {profile.household_id}
-            </div>
-            <CopyButton text={profile.household_id} />
+          <CardContent>
+            <InviteButton householdId={profile.household_id} />
           </CardContent>
         </Card>
 

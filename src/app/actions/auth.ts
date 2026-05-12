@@ -61,12 +61,16 @@ export async function signup(formData: FormData) {
   }
 
   if (data.user) {
+    const inviteHouseholdId = formData.get("householdId") as string;
+    
     // Insert profile using admin client to bypass RLS during signup
     const { error: profileError } = await supabaseAdmin
       .from("profiles")
       .insert({
         id: data.user.id,
         full_name: fullName,
+        household_id: inviteHouseholdId || null,
+        role: inviteHouseholdId ? "member" : "admin" // If invited, join as member. If new, default to admin (for their own house later)
       });
 
     if (profileError) {

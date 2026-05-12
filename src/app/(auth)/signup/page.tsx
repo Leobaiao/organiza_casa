@@ -7,20 +7,35 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { Loader2, UserPlus } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function SignupPage() {
+function SignupForm() {
+  const searchParams = useSearchParams();
+  const inviteId = searchParams.get("invite");
   const [state, formAction, isPending] = useActionState(async (_: any, fd: FormData) => signup(fd), null);
 
   return (
     <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-xl">
       <CardHeader>
-        <CardTitle className="text-xl text-white">Criar Conta</CardTitle>
+        {inviteId && (
+          <div className="flex items-center gap-2 text-indigo-400 mb-2 bg-indigo-500/10 p-2 rounded-lg border border-indigo-500/20 w-fit">
+            <UserPlus className="h-4 w-4" />
+            <span className="text-xs font-bold uppercase tracking-wider">Você foi convidado!</span>
+          </div>
+        )}
+        <CardTitle className="text-xl text-white">
+          {inviteId ? "Aceitar Convite" : "Criar Conta"}
+        </CardTitle>
         <CardDescription className="text-slate-400">
-          Junte-se ao Organiza Casa para gerenciar seu lar.
+          {inviteId 
+            ? "Crie sua conta para entrar automaticamente na casa." 
+            : "Junte-se ao Organiza Casa para gerenciar seu lar."}
         </CardDescription>
       </CardHeader>
       <form action={formAction}>
+        <input type="hidden" name="householdId" value={inviteId || ""} />
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="fullName" className="text-slate-300">Nome Completo</Label>
@@ -76,5 +91,17 @@ export default function SignupPage() {
         </CardFooter>
       </form>
     </Card>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center p-12">
+        <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+      </div>
+    }>
+      <SignupForm />
+    </Suspense>
   );
 }
