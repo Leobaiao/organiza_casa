@@ -1,15 +1,7 @@
 "use client";
 
-import { Bell, Search, User, Settings, LogOut } from "lucide-react";
+import { Bell, Search, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { logout } from "@/app/actions/auth";
 
