@@ -15,6 +15,7 @@ import { AddTransactionDialog } from "@/components/dashboard/add-transaction-dia
 import { StatsCharts } from "@/components/dashboard/stats-charts";
 import { PayAllButton } from "@/components/dashboard/pay-all-button";
 import { PayBillButton } from "@/components/dashboard/pay-bill-button";
+import { InstallPWA } from "@/components/dashboard/install-pwa-button";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -79,6 +80,8 @@ export default async function DashboardPage() {
           )}
         </div>
       </div>
+
+      <InstallPWA />
 
       {/* Quick Access Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
