@@ -32,10 +32,11 @@ const getCategoryIcon = (category: string, sizeClass: string = "h-5 w-5") => {
   }
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const user = await getUser();
   if (!user) redirect("/login");
 
+  const { q } = await searchParams;
   const profile = await getProfile(user.id);
   
   // If no profile or no household, redirect to onboarding
@@ -50,6 +51,11 @@ export default async function DashboardPage() {
     getBills(profile.household_id),
     getUserDebts()
   ]);
+
+  // Filter upcoming bills if search is active
+  const filteredUpcomingBills = q 
+    ? stats.upcomingBills.filter((b: any) => b.name.toLowerCase().includes(q.toLowerCase()))
+    : stats.upcomingBills;
 
   const pixKey = profile.households?.pix_key || "Chave não cadastrada";
 
@@ -156,8 +162,8 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {stats.upcomingBills.length > 0 ? (
-                stats.upcomingBills.map((bill: any) => (
+              {filteredUpcomingBills.length > 0 ? (
+                filteredUpcomingBills.map((bill: any) => (
                   <div key={bill.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-950/50 border border-slate-800/50 hover:border-slate-700 transition-all group">
                     <div className="flex items-center gap-4">
                       <div className="h-10 w-10 rounded-lg bg-slate-900 flex items-center justify-center border border-slate-800 shadow-inner group-hover:border-slate-700 transition-all">

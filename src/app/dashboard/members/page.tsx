@@ -7,10 +7,11 @@ import { User, Shield, UserCircle, Wallet, UserPlus, MoreVertical } from "lucide
 import { InviteButton } from "@/components/dashboard/invite-button";
 import { MemberActions } from "@/components/dashboard/member-actions";
 
-export default async function MembersPage() {
+export default async function MembersPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const user = await getUser();
   if (!user) redirect("/login");
 
+  const { q } = await searchParams;
   const profile = await getProfile(user.id);
   
   if (!profile || !profile.household_id) {
@@ -18,6 +19,13 @@ export default async function MembersPage() {
   }
 
   const members = await getHouseholdMembers(profile.household_id);
+
+  const filteredMembers = q
+    ? members.filter((m: any) => 
+        m.full_name.toLowerCase().includes(q.toLowerCase()) || 
+        (m.whatsapp_number || "").includes(q)
+      )
+    : members;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -56,7 +64,7 @@ export default async function MembersPage() {
 
         {/* Members List */}
         <div className="md:col-span-2 grid gap-4">
-          {members.map((member: any) => (
+          {filteredMembers.map((member: any) => (
             <Card key={member.id} className="border-slate-800 bg-slate-900/50 backdrop-blur-xl hover:border-slate-700 transition-all">
               <CardContent className="p-6 flex items-center justify-between">
                 <div className="flex items-center gap-4">

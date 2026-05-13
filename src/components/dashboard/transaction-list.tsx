@@ -25,7 +25,8 @@ export function TransactionList({ transactions }: TransactionListProps) {
   // Reactive filtering based on global search
   const filteredData = transactions.filter(t => 
     t.description.toLowerCase().includes(q.toLowerCase()) ||
-    (t.profiles?.full_name || "").toLowerCase().includes(q.toLowerCase())
+    (t.profiles?.full_name || "").toLowerCase().includes(q.toLowerCase()) ||
+    Math.abs(t.amount).toString().includes(q)
   );
 
   const formatCurrency = (value: number) => {
