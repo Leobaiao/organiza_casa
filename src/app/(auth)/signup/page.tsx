@@ -84,7 +84,7 @@ function SignupForm() {
           </Button>
           <div className="text-center text-sm text-slate-400">
             Já tem uma conta?{" "}
-            <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-medium">
+            <Link href={`/login${inviteId ? `?invite=${inviteId}` : ""}`} className="text-indigo-400 hover:text-indigo-300 font-medium">
               Faça login
             </Link>
           </div>

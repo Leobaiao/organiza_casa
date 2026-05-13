@@ -4,8 +4,34 @@ import { Bell, Search, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { logout } from "@/app/actions/auth";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export function TopNav({ profile }: { profile: any }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const [searchValue, setSearchValue] = useState(searchParams.get("q") || "");
+
+  // Sync state if URL changes externally (e.g., search on Bills page)
+  useEffect(() => {
+    const q = searchParams.get("q") || "";
+    if (q !== searchValue) {
+      setSearchValue(q);
+    }
+  }, [searchParams]);
+
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set("q", value);
+    } else {
+      params.delete("q");
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
   return (
     <header className="h-16 border-b border-slate-800 bg-slate-950/50 backdrop-blur-md px-4 md:px-8 flex items-center justify-between sticky top-0 z-20">
       <div className="flex items-center gap-4">
@@ -17,7 +43,9 @@ export function TopNav({ profile }: { profile: any }) {
           <input 
             type="text" 
             placeholder="Buscar..." 
-            className="bg-transparent border-none text-sm focus:ring-0 placeholder:text-slate-500 w-full"
+            value={searchValue}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="bg-transparent border-none text-sm focus:ring-0 placeholder:text-slate-500 w-full text-white"
           />
         </div>
       </div>

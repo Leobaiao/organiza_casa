@@ -11,14 +11,27 @@ import { TransactionList } from "@/components/dashboard/transaction-list";
 
 export const dynamic = "force-dynamic";
 
-export default async function TransactionsPage() {
+export default async function TransactionsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const user = await getUser();
   if (!user) redirect("/login");
 
+  const { q } = await searchParams;
   const profile = await getProfile(user.id);
   if (!profile?.household_id) redirect("/onboarding");
 
   const transactions = await getTransactions(profile.household_id);
+
+  // 1. Role Filter: Members see only their own, Admins see all
+  const filteredByRole = profile.role === 'admin' 
+    ? transactions 
+    : transactions.filter((t: any) => t.user_id === user.id);
+
+  // 2. Search Filter (Initial server-side filter, but client-side will also handle it)
+  const searchTerm = q || "";
+  const filteredTransactions = filteredByRole.filter((t: any) => 
+    t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (t.profiles?.full_name || "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -42,7 +55,7 @@ export default async function TransactionsPage() {
         </div>
       </div>
 
-      <TransactionList transactions={transactions} />
+      <TransactionList transactions={filteredTransactions} />
     </div>
   );
 }

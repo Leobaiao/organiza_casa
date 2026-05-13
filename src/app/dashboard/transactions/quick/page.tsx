@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { QuickPaymentForm } from "@/components/dashboard/quick-payment-form";
+import { getUserDebts } from "@/app/actions/bills";
 
 export default async function QuickPaymentPage() {
   const user = await getUser();
@@ -21,6 +22,9 @@ export default async function QuickPaymentPage() {
   // Get real pix key from household settings
   const pixKey = profile.households?.pix_key || "Chave não cadastrada";
 
+  // Get user pending debts to allow linking the payment
+  const debts = await getUserDebts() || [];
+
   return (
     <div className="min-h-screen bg-slate-950 pb-20 pt-4 px-4 overflow-x-hidden">
       <div className="max-w-md mx-auto space-y-6">
@@ -36,6 +40,7 @@ export default async function QuickPaymentPage() {
           <QuickPaymentForm 
             householdId={profile.household_id} 
             pixKey={pixKey} 
+            debts={debts}
           />
         </Card>
 

@@ -7,6 +7,7 @@ import { AddBillDialog } from "@/components/dashboard/add-bill-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Receipt } from "lucide-react";
 import { BillCard } from "@/components/dashboard/bill-card";
+import { BillsView } from "@/components/dashboard/bills-view";
 
 export const dynamic = "force-dynamic";
 
@@ -32,38 +33,16 @@ export default async function BillsPage() {
           <h1 className="text-3xl font-bold text-white tracking-tight">Contas</h1>
           <p className="text-slate-400">Gerencie e acompanhe o pagamento das despesas da casa.</p>
         </div>
-        <AddBillDialog members={members} />
+        {profile.role === 'admin' && <AddBillDialog members={members} />}
       </div>
 
-      <div className="grid gap-6">
-        {bills.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {bills.map((bill: any) => (
-              <BillCard 
-                key={bill.id} 
-                bill={bill} 
-                members={members} 
-                allTransactions={allTransactions} 
-              />
-            ))}
-          </div>
-        ) : (
-          <Card className="border-dashed border-slate-800 bg-transparent py-20">
-            <CardContent className="flex flex-col items-center justify-center text-center">
-              <div className="h-20 w-20 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-6">
-                <Receipt className="h-10 w-10 text-slate-700" />
-              </div>
-              <h3 className="text-xl font-semibold text-white">Nenhuma conta cadastrada</h3>
-              <p className="text-slate-500 max-w-xs mx-auto mt-2">
-                Comece adicionando uma despesa como aluguel ou luz para gerenciar o rateio automático entre os moradores.
-              </p>
-              <div className="mt-8">
-                <AddBillDialog members={members} />
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      <BillsView 
+        bills={bills} 
+        members={members} 
+        allTransactions={allTransactions} 
+        currentUserId={user.id}
+        currentUserRole={profile.role}
+      />
     </div>
   );
 }

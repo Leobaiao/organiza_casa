@@ -29,8 +29,10 @@ export async function login(formData: FormData) {
     .eq("id", data.user.id)
     .single();
 
+  const inviteId = formData.get("inviteId") as string;
+
   if (!profile?.household_id) {
-    redirect("/onboarding");
+    redirect(`/onboarding${inviteId ? `?invite=${inviteId}` : ""}`);
   }
   
   redirect("/dashboard");

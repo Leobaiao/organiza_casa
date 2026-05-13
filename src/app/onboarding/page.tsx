@@ -13,18 +13,73 @@ export const dynamic = "force-dynamic";
 export default async function OnboardingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string }>;
+  searchParams: Promise<{ mode?: string, invite?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect("/login");
 
   const profile = await getProfile(user.id);
-  if (profile?.household_id) {
+  const params = await searchParams;
+  const mode = params?.mode;
+  const inviteId = params?.invite;
+
+  // 1. If user already has a house AND there's no new invite, go to dashboard
+  if (profile?.household_id && !inviteId) {
     redirect("/dashboard");
   }
 
-  const params = await searchParams;
-  const mode = params?.mode;
+  // 2. Invite screen (if invite ID is present) - Even if they have a house, show the invite
+  if (inviteId && !mode) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
+        <Card className="w-full max-w-md border-indigo-500/30 bg-slate-900/50 backdrop-blur-xl border-2 shadow-2xl shadow-indigo-500/10">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-400">
+              <UserPlus className="h-8 w-8" />
+            </div>
+            <CardTitle className="text-3xl text-white font-bold">Você foi convidado!</CardTitle>
+            <CardDescription className="text-slate-400 text-base mt-2">
+              Alguém te convidou para participar de uma casa no Organiza Casa.
+            </CardDescription>
+          </CardHeader>
+          <form action={async (fd) => {
+            "use server";
+            await joinHousehold(fd);
+          }}>
+            <input type="hidden" name="householdId" value={inviteId} />
+            <CardContent className="space-y-4">
+              <div className="p-4 rounded-xl bg-slate-950/50 border border-slate-800 text-center">
+                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">ID da Casa</p>
+                <p className="text-sm font-mono text-indigo-300 break-all">{inviteId}</p>
+              </div>
+
+              {profile?.household_id && (
+                <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-start gap-3">
+                  <div className="h-5 w-5 rounded-full bg-rose-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-rose-400 text-xs font-bold">!</span>
+                  </div>
+                  <p className="text-xs text-rose-300 leading-relaxed">
+                    <span className="font-bold">Aviso:</span> Você já faz parte de uma casa. Ao aceitar este convite, você <span className="underline">sairá automaticamente</span> da casa atual para entrar nesta nova.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+            <CardFooter className="flex flex-col gap-3">
+              <Button 
+                type="submit"
+                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-6 text-lg shadow-lg shadow-indigo-500/20 transition-all"
+              >
+                {profile?.household_id ? "Trocar de Casa" : "Aceitar e Entrar na Casa"}
+              </Button>
+              <Link href={profile?.household_id ? "/dashboard" : "/onboarding"} className="text-sm text-slate-500 hover:text-white transition-colors">
+                {profile?.household_id ? "Manter casa atual" : "Recusar e criar minha própria casa"}
+              </Link>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
+    );
+  }
 
   // Choice screen (default)
   if (!mode) {

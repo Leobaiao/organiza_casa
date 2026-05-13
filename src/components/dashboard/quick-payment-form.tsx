@@ -5,16 +5,18 @@ import { CardContent, CardHeader, CardTitle, CardDescription } from "@/component
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DollarSign, Send, Copy, CheckCircle2, Check, Loader2, FileText, Camera, Paperclip } from "lucide-react";
+import { DollarSign, Send, Copy, CheckCircle2, Check, Loader2, FileText, Camera, Paperclip, Receipt } from "lucide-react";
 import { registerPayment } from "@/app/actions/transactions";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export function QuickPaymentForm({ householdId, pixKey }: { householdId: string, pixKey: string }) {
+export function QuickPaymentForm({ householdId, pixKey, debts = [] }: { householdId: string, pixKey: string, debts?: any[] }) {
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(async (_: any, fd: FormData) => registerPayment(fd), null);
   const [amount, setAmount] = useState("");
   const [copied, setCopied] = useState(false);
+  const [selectedBillId, setSelectedBillId] = useState<string>("general");
 
   useEffect(() => {
     if (state?.success) {
@@ -58,25 +60,61 @@ export function QuickPaymentForm({ householdId, pixKey }: { householdId: string,
 
         <form action={formAction} className="space-y-6">
           <input type="hidden" name="householdId" value={householdId} />
+          {selectedBillId !== "general" && <input type="hidden" name="billId" value={selectedBillId} />}
           
           <div className="space-y-4">
-            <Label className="text-slate-300 font-medium text-xs uppercase tracking-wider">Sugestões de Valor</Label>
-            <div className="grid grid-cols-3 gap-3">
-              {[50, 100, 200].map((val) => (
-                <button
-                  key={val}
-                  type="button"
-                  className={`py-3 rounded-xl border transition-all active:scale-95 font-bold ${
-                    amount === val.toString() 
-                    ? "border-emerald-500 bg-emerald-500/10 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]" 
-                    : "border-slate-800 bg-slate-950 text-slate-400 hover:border-slate-700"
-                  }`}
-                  onClick={() => setAmount(val.toString())}
-                >
-                  R$ {val}
-                </button>
-              ))}
+            
+            <div className="space-y-2">
+              <Label className="text-slate-300">Conta Destino</Label>
+              <Select 
+                value={selectedBillId} 
+                onValueChange={(val) => {
+                  setSelectedBillId(val ?? "general");
+                  if (val !== "general") {
+                    const debt = debts.find(d => d.id === val);
+                    if (debt) {
+                      setAmount(Math.abs(debt.amount).toFixed(2));
+                    }
+                  } else {
+                    setAmount("");
+                  }
+                }}
+              >
+                <SelectTrigger className="w-full bg-slate-950 border-slate-800 text-white h-12 rounded-xl">
+                  <SelectValue placeholder="Selecione a conta" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                  <SelectItem value="general" className="focus:bg-slate-800 focus:text-white">Pagamento Avulso (Crédito Geral)</SelectItem>
+                  {debts.map(debt => (
+                    <SelectItem key={debt.id} value={debt.id} className="focus:bg-slate-800 focus:text-white">
+                      {debt.name} - R$ {Math.abs(debt.amount).toFixed(2).replace('.', ',')}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+
+            {selectedBillId === "general" && (
+              <div className="space-y-2 pt-2">
+                <Label className="text-slate-300 font-medium text-xs uppercase tracking-wider">Sugestões de Valor</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[50, 100, 200].map((val) => (
+                    <button
+                      key={val}
+                      type="button"
+                      className={`py-3 rounded-xl border transition-all active:scale-95 font-bold ${
+                        amount === val.toFixed(2) 
+                        ? "border-emerald-500 bg-emerald-500/10 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]" 
+                        : "border-slate-800 bg-slate-950 text-slate-400 hover:border-slate-700"
+                      }`}
+                      onClick={() => setAmount(val.toFixed(2))}
+                    >
+                      R$ {val}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="amount" className="text-slate-300">Valor do Pagamento</Label>
@@ -101,7 +139,8 @@ export function QuickPaymentForm({ householdId, pixKey }: { householdId: string,
               <Input 
                 id="description" 
                 name="description" 
-                placeholder="Ex: Pix do mês, luz..." 
+                placeholder={selectedBillId !== "general" ? `Pagamento da conta...` : "Ex: Pix do mês, luz..."}
+                defaultValue={selectedBillId !== "general" ? `Pagamento: ${debts.find(d => d.id === selectedBillId)?.name}` : ""}
                 className="bg-slate-950 border-slate-800 text-white h-12 rounded-xl"
               />
             </div>

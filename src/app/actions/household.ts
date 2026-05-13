@@ -101,3 +101,25 @@ export async function joinHousehold(formData: FormData) {
   revalidatePath("/", "layout");
   return { success: true };
 }
+
+export async function leaveHousehold() {
+  const user = await getUser();
+  if (!user) return { error: "Não autorizado." };
+
+  const { error } = await supabaseAdmin
+    .from("profiles")
+    .update({ 
+      household_id: null,
+      role: 'member' // Reset role too
+    })
+    .eq("id", user.id);
+
+  if (error) {
+    console.error("[leaveHousehold] Error leaving house:", error);
+    return { error: error.message };
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/onboarding");
+}
+

@@ -36,21 +36,23 @@ export default async function MembersPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        {/* Invitation Card */}
-        <Card className="md:col-span-1 border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl h-fit">
-          <CardHeader>
-            <div className="h-10 w-10 rounded-lg bg-indigo-600 flex items-center justify-center mb-2 shadow-lg shadow-indigo-900/20">
-              <UserPlus className="h-5 w-5 text-white" />
-            </div>
-            <CardTitle className="text-white">Novo Morador</CardTitle>
-            <CardDescription className="text-slate-400">
-              Envie um link para que novos moradores entrem automaticamente.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <InviteButton householdId={profile.household_id} />
-          </CardContent>
-        </Card>
+        {/* Invitation Card (Admin only) */}
+        {profile.role === 'admin' && (
+          <Card className="md:col-span-1 border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl h-fit">
+            <CardHeader>
+              <div className="h-10 w-10 rounded-lg bg-indigo-600 flex items-center justify-center mb-2 shadow-lg shadow-indigo-900/20">
+                <UserPlus className="h-5 w-5 text-white" />
+              </div>
+              <CardTitle className="text-white">Novo Morador</CardTitle>
+              <CardDescription className="text-slate-400">
+                Envie um link para que novos moradores entrem automaticamente.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <InviteButton householdId={profile.household_id} />
+            </CardContent>
+          </Card>
+        )}
 
         {/* Members List */}
         <div className="md:col-span-2 grid gap-4">
@@ -81,7 +83,7 @@ export default async function MembersPage() {
                   <div className="text-right">
                     <p className="text-xs text-slate-500 mb-1">Saldo Atual</p>
                     <p className={`font-bold ${member.balance >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                      {formatCurrency(member.balance)}
+                      {(profile.role === 'admin' || member.id === user.id) ? formatCurrency(member.balance) : "---"}
                     </p>
                   </div>
                   

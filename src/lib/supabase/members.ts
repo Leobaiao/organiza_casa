@@ -1,7 +1,8 @@
-import { createClient } from "./server";
+import { supabaseAdmin } from "./admin";
 
 export async function getHouseholdMembers(householdId: string) {
-  const supabase = await createClient();
+  // Use admin client to bypass RLS and see all members of the household
+  const supabase = supabaseAdmin;
   
   // 1. Get profiles
   const { data: profiles, error: pError } = await supabase

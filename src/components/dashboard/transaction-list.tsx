@@ -12,11 +12,22 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 
+import { useSearchParams } from "next/navigation";
+
 interface TransactionListProps {
   transactions: any[];
 }
 
 export function TransactionList({ transactions }: TransactionListProps) {
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q") || "";
+
+  // Reactive filtering based on global search
+  const filteredData = transactions.filter(t => 
+    t.description.toLowerCase().includes(q.toLowerCase()) ||
+    (t.profiles?.full_name || "").toLowerCase().includes(q.toLowerCase())
+  );
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -32,8 +43,8 @@ export function TransactionList({ transactions }: TransactionListProps) {
     });
   };
 
-  const payments = transactions.filter(t => t.amount > 0);
-  const splits = transactions.filter(t => t.amount < 0);
+  const payments = filteredData.filter(t => t.amount > 0);
+  const splits = filteredData.filter(t => t.amount < 0);
 
   const renderTable = (data: any[]) => (
     <div className="overflow-x-auto">
@@ -137,7 +148,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
 
       <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-xl overflow-hidden">
         <TabsContent value="all" className="m-0 focus-visible:outline-none focus-visible:ring-0">
-          {renderTable(transactions)}
+          {renderTable(filteredData)}
         </TabsContent>
         <TabsContent value="payments" className="m-0 focus-visible:outline-none focus-visible:ring-0">
           {renderTable(payments)}

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wallet, Receipt, TrendingUp, ArrowUpRight, Plus, Calendar, DollarSign } from "lucide-react";
+import { Wallet, Receipt, TrendingUp, ArrowUpRight, Plus, Calendar, DollarSign, CheckCircle2, Home, Zap, Droplet, Wifi, ShoppingCart, Wrench } from "lucide-react";
 import { getUser, getProfile } from "@/lib/supabase/user";
 import { getDashboardStats } from "@/lib/supabase/stats";
 import { getHouseholdMembers } from "@/lib/supabase/members";
@@ -11,9 +11,23 @@ import { CopyButton } from "@/components/dashboard/copy-button";
 import { AddBillDialog } from "@/components/dashboard/add-bill-dialog";
 import { AddTransactionDialog } from "@/components/dashboard/add-transaction-dialog";
 import { StatsCharts } from "@/components/dashboard/stats-charts";
+import { PayAllButton } from "@/components/dashboard/pay-all-button";
+import { PayBillButton } from "@/components/dashboard/pay-bill-button";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
+
+const getCategoryIcon = (category: string, sizeClass: string = "h-5 w-5") => {
+  switch (category) {
+    case 'rent': return <Home className={`${sizeClass} text-indigo-400`} />;
+    case 'electricity': return <Zap className={`${sizeClass} text-yellow-400`} />;
+    case 'water': return <Droplet className={`${sizeClass} text-blue-400`} />;
+    case 'internet': return <Wifi className={`${sizeClass} text-emerald-400`} />;
+    case 'supermarket': return <ShoppingCart className={`${sizeClass} text-orange-400`} />;
+    case 'maintenance': return <Wrench className={`${sizeClass} text-slate-400`} />;
+    default: return <Receipt className={`${sizeClass} text-slate-400`} />;
+  }
+};
 
 export default async function DashboardPage() {
   const user = await getUser();
@@ -49,11 +63,15 @@ export default async function DashboardPage() {
         </div>
         <div className="flex items-center gap-3">
           <CopyButton text={profile.household_id} />
-          <Link href="/dashboard/bills/new" className="hidden md:block">
-            <Button className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2">
-              <Plus className="h-4 w-4" /> Nova Conta
-            </Button>
-          </Link>
+          {profile.role === 'admin' && (
+            <div className="hidden md:block">
+              <AddBillDialog members={members} trigger={
+                <Button className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2 h-10">
+                  <Plus className="h-4 w-4" /> Nova Conta
+                </Button>
+              } />
+            </div>
+          )}
         </div>
       </div>
 
@@ -74,14 +92,18 @@ export default async function DashboardPage() {
           </div>
         </Link>
         
-        <Link href="/dashboard/bills/new" className="md:hidden">
-          <div className="h-24 rounded-2xl bg-slate-900 border border-slate-800 p-4 flex flex-col justify-between hover:border-indigo-500/50 transition-all">
-            <div className="h-8 w-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-              <Plus className="h-5 w-5" />
-            </div>
-            <p className="font-bold text-white">Nova Conta</p>
+        {profile.role === 'admin' && (
+          <div className="md:hidden">
+            <AddBillDialog members={members} trigger={
+              <button className="w-full text-left h-24 rounded-2xl bg-slate-900 border border-slate-800 p-4 flex flex-col justify-between hover:border-indigo-500/50 transition-all cursor-pointer">
+                <div className="h-8 w-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                  <Plus className="h-5 w-5" />
+                </div>
+                <p className="font-bold text-white">Nova Conta</p>
+              </button>
+            } />
           </div>
-        </Link>
+        )}
 
         <Link href="/dashboard/members" className="hidden md:flex">
           {/* Desktop only members shortcut */}
@@ -102,6 +124,7 @@ export default async function DashboardPage() {
           description={stats.personalBalance >= 0 ? "Você está no azul!" : "Pendente de pagamento"}
           icon={<Wallet className="h-5 w-5 text-emerald-400" />}
           trend={stats.personalBalance >= 0 ? "positive" : "negative"}
+          footer={<PayAllButton balance={stats.personalBalance} />}
         />
         <StatCard 
           title="Total da Casa" 
@@ -128,7 +151,9 @@ export default async function DashboardPage() {
               <CardTitle className="text-white">Próximas Contas</CardTitle>
               <CardDescription className="text-slate-400">Contas a vencer nos próximos dias.</CardDescription>
             </div>
-            <Button variant="ghost" size="sm" className="text-indigo-400 hover:text-indigo-300">Ver todas</Button>
+            <Link href="/dashboard/bills">
+              <Button variant="ghost" size="sm" className="text-indigo-400 hover:text-indigo-300">Ver todas</Button>
+            </Link>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -136,17 +161,33 @@ export default async function DashboardPage() {
                 stats.upcomingBills.map((bill: any) => (
                   <div key={bill.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-950/50 border border-slate-800/50 hover:border-slate-700 transition-all group">
                     <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-lg bg-slate-900 flex items-center justify-center text-slate-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-400 transition-all">
-                        <Receipt className="h-5 w-5" />
+                      <div className="h-10 w-10 rounded-lg bg-slate-900 flex items-center justify-center border border-slate-800 shadow-inner group-hover:border-slate-700 transition-all">
+                        {getCategoryIcon(bill.category || 'other')}
                       </div>
                       <div>
                         <p className="font-medium text-white">{bill.name}</p>
                         <p className="text-xs text-slate-500">{new Date(bill.due_date).toLocaleDateString('pt-BR')}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-white">{formatCurrency(bill.total_amount)}</p>
-                      <p className="text-xs text-slate-500 capitalize">{bill.type}</p>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="font-semibold text-white">{formatCurrency(bill.total_amount)}</p>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase">{bill.type === 'fixed' ? 'Fixa' : 'Variável'}</p>
+                      </div>
+                      <div className="border-l border-slate-800 pl-3 min-w-[100px] flex justify-end">
+                        {bill.userHasPaid ? (
+                          <div className="flex items-center gap-1 text-emerald-500 text-[10px] font-bold uppercase">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Pago
+                          </div>
+                        ) : (
+                          <PayBillButton 
+                            billId={bill.id} 
+                            billName={bill.name} 
+                            amount={bill.userShare} 
+                          />
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))
@@ -187,7 +228,9 @@ export default async function DashboardPage() {
                       </div>
                     </div>
                     <p className={`text-sm font-bold ${activity.amount > 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                      {activity.amount > 0 ? "+" : ""}{formatCurrency(activity.amount)}
+                      {(profile.role === 'admin' || activity.user_id === user.id) 
+                        ? `${activity.amount > 0 ? "+" : ""}${formatCurrency(activity.amount)}` 
+                        : "---"}
                     </p>
                   </div>
                 ))
@@ -200,12 +243,13 @@ export default async function DashboardPage() {
   );
 }
 
-function StatCard({ title, value, description, icon, trend }: { 
+function StatCard({ title, value, description, icon, trend, footer }: { 
   title: string, 
   value: string, 
   description: string, 
   icon: React.ReactNode,
-  trend?: "positive" | "negative"
+  trend?: "positive" | "negative",
+  footer?: React.ReactNode
 }) {
   return (
     <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-xl overflow-hidden relative group transition-all hover:border-slate-700">
@@ -223,6 +267,7 @@ function StatCard({ title, value, description, icon, trend }: {
             <ArrowUpRight className={`h-3 w-3 ${trend === "positive" ? "text-emerald-400" : "text-rose-400"}`} />
           )}
         </p>
+        {footer}
       </CardContent>
       <div className="absolute -right-2 -bottom-2 h-16 w-16 rounded-full bg-indigo-500/5 blur-xl group-hover:bg-indigo-500/10 transition-all" />
     </Card>

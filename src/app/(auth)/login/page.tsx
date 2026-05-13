@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, Suspense } from "react";
 import { login } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const inviteId = searchParams.get("invite");
   const [state, formAction, isPending] = useActionState(async (_: any, fd: FormData) => login(fd), null);
 
   return (
@@ -21,6 +24,7 @@ export default function LoginPage() {
         </CardDescription>
       </CardHeader>
       <form action={formAction}>
+        <input type="hidden" name="inviteId" value={inviteId || ""} />
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-slate-300">E-mail</Label>
@@ -64,12 +68,24 @@ export default function LoginPage() {
           </Button>
           <div className="text-center text-sm text-slate-400">
             Não tem uma conta?{" "}
-            <Link href="/signup" className="text-indigo-400 hover:text-indigo-300 font-medium">
+            <Link href={`/signup${inviteId ? `?invite=${inviteId}` : ""}`} className="text-indigo-400 hover:text-indigo-300 font-medium">
               Cadastre-se
             </Link>
           </div>
         </CardFooter>
       </form>
     </Card>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center p-12">
+        <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

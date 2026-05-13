@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { User, Home, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { LeaveHouseButton } from "./leave-house-button";
 
 export function SettingsForm({ profile }: { profile: any }) {
   const [profileState, profileAction, isUpdatingProfile] = useActionState(async (_: any, fd: FormData) => updateProfile(fd), null);
@@ -132,6 +133,25 @@ export function SettingsForm({ profile }: { profile: any }) {
           </CardContent>
         </Card>
       )}
+
+      {/* Danger Zone */}
+      <Card className="border-rose-500/20 bg-rose-500/5 backdrop-blur-xl">
+        <CardHeader>
+          <div className="flex items-center gap-2 text-rose-400 mb-1">
+            <AlertCircle className="h-5 w-5" />
+            <span className="text-xs font-bold uppercase tracking-wider">Zona de Perigo</span>
+          </div>
+          <CardTitle className="text-white">Sair da Casa</CardTitle>
+          <CardDescription className="text-slate-400">
+            Você deixará de fazer parte deste grupo doméstico. Você poderá entrar em outra casa ou criar uma nova após sair.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-start max-w-xs">
+            <LeaveHouseButton />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Account Info */}
       <div className="p-4 rounded-lg bg-indigo-500/5 border border-indigo-500/10 flex items-center justify-between">
