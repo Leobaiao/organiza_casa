@@ -8,6 +8,8 @@ import { getTransactions } from "@/lib/supabase/transactions";
 import { getBills } from "@/lib/supabase/bills";
 import { redirect } from "next/navigation";
 import { CopyButton } from "@/components/dashboard/copy-button";
+import { getUserDebts } from "@/app/actions/bills";
+import { QuickPaymentDialog } from "@/components/dashboard/quick-payment-dialog";
 import { AddBillDialog } from "@/components/dashboard/add-bill-dialog";
 import { AddTransactionDialog } from "@/components/dashboard/add-transaction-dialog";
 import { StatsCharts } from "@/components/dashboard/stats-charts";
@@ -40,12 +42,15 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
-  const [stats, members, transactions, bills] = await Promise.all([
+  const [stats, members, transactions, bills, debts] = await Promise.all([
     getDashboardStats(user.id, profile.household_id),
     getHouseholdMembers(profile.household_id),
     getTransactions(profile.household_id),
-    getBills(profile.household_id)
+    getBills(profile.household_id),
+    getUserDebts()
   ]);
+
+  const pixKey = profile.households?.pix_key || "Chave não cadastrada";
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -77,20 +82,11 @@ export default async function DashboardPage() {
 
       {/* Quick Access Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Link href="/dashboard/transactions/quick" className="col-span-2">
-          <div className="relative overflow-hidden group h-24 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 p-4 shadow-lg shadow-emerald-900/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
-            <div className="relative z-10 flex flex-col justify-between h-full">
-              <div className="flex items-center justify-between">
-                <div className="h-8 w-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
-                  <DollarSign className="h-5 w-5" />
-                </div>
-                <ArrowUpRight className="h-5 w-5 text-white/50 group-hover:text-white transition-colors" />
-              </div>
-              <p className="font-bold text-white text-lg">Pagar Agora (Pix)</p>
-            </div>
-            <div className="absolute -right-4 -bottom-4 h-24 w-24 rounded-full bg-white/10 blur-2xl group-hover:bg-white/20 transition-all" />
-          </div>
-        </Link>
+        <QuickPaymentDialog 
+          householdId={profile.household_id} 
+          pixKey={pixKey} 
+          debts={debts || []} 
+        />
         
         {profile.role === 'admin' && (
           <div className="md:hidden">
