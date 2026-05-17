@@ -108,74 +108,111 @@ export async function deleteBill(billId: string) {
 }
 
 export async function updateBill(formData: FormData) {
+  console.log("[updateBill] Starting update...");
   const user = await getUser();
-  if (!user) return { error: "Não autorizado." };
+  if (!user) {
+    console.log("[updateBill] Unauthorized user");
+    return { error: "Não autorizado." };
+  }
 
   const billId = formData.get("billId") as string;
   const name = formData.get("name") as string;
-  const amount = Number(formData.get("amount"));
+  const rawAmount = formData.get("amount") as string;
+  const amount = Number(rawAmount?.replace(",", "."));
   const dueDate = formData.get("dueDate") as string;
   const category = (formData.get("category") as string) || "other";
   const participantIds = formData.getAll("memberIds") as string[];
 
+  console.log("[updateBill] Params:", { billId, name, amount, dueDate, category, participantIds });
+
   if (!billId || !name || !amount || !dueDate || participantIds.length === 0) {
+    console.log("[updateBill] Missing fields", { billId, name, amount, dueDate, participantIdsLength: participantIds.length });
     return { error: "Dados incompletos. Informe o nome, valor, data e ao menos um participante." };
   }
 
   // 1. Update the bill
+  console.log("[updateBill] Updating bill in DB...");
   const { error: billError } = await supabaseAdmin
     .from("bills")
     .update({ name, total_amount: amount, due_date: dueDate, category })
     .eq("id", billId);
 
-  if (billError) return { error: billError.message };
+  if (billError) {
+    console.error("[updateBill] Bill update error:", billError);
+    return { error: billError.message };
+  }
 
-  // 2. Manage participants/transactions
-  // Get existing debt transactions for this bill to identify current participants
-  const { data: existingDebts } = await supabaseAdmin
+  // 2. Pre-calculate the new split amount
+  const newSplitAmount = -(amount / participantIds.length);
+  console.log("[updateBill] New split amount:", newSplitAmount);
+
+  // 3. Manage participants/transactions
+  console.log("[updateBill] Managing participants...");
+  const { data: existingDebts, error: fetchDebtsError } = await supabaseAdmin
     .from("transactions")
     .select("user_id")
     .eq("bill_id", billId)
     .lt("amount", 0);
 
+  if (fetchDebtsError) {
+    console.error("[updateBill] Error fetching debts:", fetchDebtsError);
+    return { error: fetchDebtsError.message };
+  }
+
   const existingParticipantIds = new Set(existingDebts?.map(d => d.user_id) || []);
   const newParticipantIdsSet = new Set(participantIds);
 
-  // Participants to remove (those who were in the bill but are no longer in the new list)
   const toRemove = [...existingParticipantIds].filter(id => !newParticipantIdsSet.has(id));
-  
-  // Participants to add (those who are in the new list but were not in the bill)
   const toAdd = participantIds.filter(id => !existingParticipantIds.has(id));
 
-  // 3. Remove debt transactions for removed participants
+  console.log("[updateBill] Changes:", { toRemove, toAdd });
+
+  // 4. Remove debt transactions for removed participants
   if (toRemove.length > 0) {
-    await supabaseAdmin
+    console.log("[updateBill] Removing participants:", toRemove);
+    const { error: deleteError } = await supabaseAdmin
       .from("transactions")
       .delete()
       .eq("bill_id", billId)
       .in("user_id", toRemove)
-      .lt("amount", 0); // Only delete the DEBT, keep the payment if any
+      .lt("amount", 0);
+
+    if (deleteError) {
+      console.error("[updateBill] Error deleting transactions:", deleteError);
+      return { error: deleteError.message };
+    }
   }
 
-  // 4. Add new debt transactions for added participants
+  // 5. Add new debt transactions for added participants
   if (toAdd.length > 0) {
-    const { data: bill } = await supabaseAdmin.from("bills").select("household_id").eq("id", billId).single();
+    console.log("[updateBill] Adding participants:", toAdd);
+    const { data: bill, error: fetchBillError } = await supabaseAdmin.from("bills").select("household_id").eq("id", billId).single();
     
+    if (fetchBillError) {
+      console.error("[updateBill] Error fetching bill:", fetchBillError);
+      return { error: fetchBillError.message };
+    }
+
     if (bill) {
       const inserts = toAdd.map(id => ({
         user_id: id,
         bill_id: billId,
         household_id: bill.household_id,
-        amount: 0, // Will be updated in the next step
+        amount: newSplitAmount,
         description: `Rateio: ${name}`,
         status: 'confirmed'
       }));
-      await supabaseAdmin.from("transactions").insert(inserts);
+      
+      const { error: insertError } = await supabaseAdmin.from("transactions").insert(inserts);
+      if (insertError) {
+        console.error("[updateBill] Error inserting transactions:", insertError);
+        return { error: insertError.message };
+      }
     }
   }
 
-  // 5. Recalculate and update ALL debts for this bill
-  const newSplitAmount = -(amount / participantIds.length);
+  // 6. Recalculate and update ALL debts for this bill
+  console.log("[updateBill] Recalculating splits...");
   const { error: updateError } = await supabaseAdmin
     .from("transactions")
     .update({ 
@@ -183,12 +220,14 @@ export async function updateBill(formData: FormData) {
       description: `Rateio: ${name}`
     })
     .eq("bill_id", billId)
-    .lt("amount", 0);
+    .lte("amount", 0);
 
   if (updateError) {
     console.error("[updateBill] Error updating transaction amounts:", updateError);
+    return { error: updateError.message };
   }
 
+  console.log("[updateBill] Success!");
   revalidatePath("/dashboard/bills");
   revalidatePath("/dashboard");
   return { success: true };

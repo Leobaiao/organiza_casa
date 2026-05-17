@@ -107,30 +107,32 @@ export function StatsCharts({ bills }: StatsChartsProps) {
           <CardTitle className="text-lg text-white">Gastos por Categoria</CardTitle>
         </CardHeader>
         <CardContent className="h-[250px] min-w-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={dataByCategory}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={80}
-                paddingAngle={5}
-                dataKey="value"
-                stroke="transparent"
-              >
-                {dataByCategory.map((entry: any, index: number) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip 
-                formatter={(value: any) => formatCurrency(Number(value))}
-                contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)' }}
-                itemStyle={{ color: '#fff', fontWeight: 'bold' }}
-              />
-              <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }}/>
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="w-full h-full min-w-0 min-h-0 relative">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+              <PieChart>
+                <Pie
+                  data={dataByCategory}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                  stroke="transparent"
+                >
+                  {dataByCategory.map((entry: any, index: number) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: any) => formatCurrency(Number(value))}
+                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)' }}
+                  itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                />
+                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }}/>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
 
@@ -139,33 +141,35 @@ export function StatsCharts({ bills }: StatsChartsProps) {
           <CardTitle className="text-lg text-white">Maiores Despesas</CardTitle>
         </CardHeader>
         <CardContent className="h-[250px] min-w-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={dataByBill}>
-              <XAxis 
-                dataKey="name" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} 
-                dy={10}
-              />
-              <YAxis hide />
-              <Tooltip 
-                formatter={(value: any) => formatCurrency(Number(value))}
-                cursor={{ fill: 'rgba(255,255,255,0.03)' }}
-                contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)' }}
-                itemStyle={{ color: '#fff', fontWeight: 'bold' }}
-              />
-              <Bar 
-                dataKey="valor" 
-                radius={[6, 6, 0, 0]} 
-                barSize={32}
-              >
-                {dataByBill.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} fillOpacity={0.8} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="w-full h-full min-w-0 min-h-0 relative">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+              <BarChart data={dataByBill}>
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} 
+                  dy={10}
+                />
+                <YAxis hide />
+                <Tooltip 
+                  formatter={(value: any) => formatCurrency(Number(value))}
+                  cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)' }}
+                  itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                />
+                <Bar 
+                  dataKey="valor" 
+                  radius={[6, 6, 0, 0]} 
+                  barSize={32}
+                >
+                  {dataByBill.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} fillOpacity={0.8} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
     </div>

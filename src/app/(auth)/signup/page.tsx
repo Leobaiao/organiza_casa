@@ -1,13 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { signup } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { Loader2, UserPlus } from "lucide-react";
+import { Loader2, UserPlus, Eye, EyeOff } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
@@ -15,6 +15,7 @@ function SignupForm() {
   const searchParams = useSearchParams();
   const inviteId = searchParams.get("invite");
   const [state, formAction, isPending] = useActionState(async (_: any, fd: FormData) => signup(fd), null);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-xl">
@@ -60,13 +61,27 @@ function SignupForm() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password" className="text-slate-300">Senha</Label>
-            <Input 
-              id="password" 
-              name="password" 
-              type="password" 
-              required 
-              className="bg-slate-950 border-slate-800 text-white focus:ring-indigo-500"
-            />
+            <div className="relative">
+              <Input 
+                id="password" 
+                name="password" 
+                type={showPassword ? "text" : "password"} 
+                required 
+                className="bg-slate-950 border-slate-800 text-white focus:ring-indigo-500 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 focus:outline-none"
+                aria-label={showPassword ? "Esconder senha" : "Mostrar senha"}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
           </div>
           {state?.error && (
             <p className="text-sm font-medium text-red-500 bg-red-500/10 p-3 rounded-lg border border-red-500/20">

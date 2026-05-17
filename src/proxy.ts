@@ -35,15 +35,37 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  const url = request.nextUrl.clone()
+
+  // 1. Root page "/" redirection
+  if (url.pathname === '/') {
+    if (user) {
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    } else {
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // 2. Auth routes: redirect logged in users away from login/signup
+  if (url.pathname.startsWith('/login') || url.pathname.startsWith('/signup')) {
+    if (user) {
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // 3. Protected routes: redirect unauthenticated users to login
   if (
     !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/signup') &&
-    !request.nextUrl.pathname.startsWith('/auth') &&
-    request.nextUrl.pathname !== '/'
+    !url.pathname.startsWith('/login') &&
+    !url.pathname.startsWith('/signup') &&
+    !url.pathname.startsWith('/auth') &&
+    !url.pathname.startsWith('/api') &&
+    !url.pathname.startsWith('/_next') &&
+    url.pathname !== '/'
   ) {
-    // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
@@ -55,11 +77,11 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
+     * - _next (internal Next.js routes, static files, HMR)
+     * - api (API routes)
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next|api|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

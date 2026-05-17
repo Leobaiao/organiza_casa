@@ -1,7 +1,7 @@
-import { supabaseAdmin } from "./admin";
+import { createClient } from "./server";
 
 export async function getTransactions(householdId: string) {
-  const supabase = supabaseAdmin;
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from("transactions")

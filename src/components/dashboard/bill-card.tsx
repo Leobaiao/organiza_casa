@@ -41,6 +41,7 @@ interface BillCardProps {
 export function BillCard({ bill, members, allTransactions, currentUserId, currentUserRole }: BillCardProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -78,6 +79,7 @@ export function BillCard({ bill, members, allTransactions, currentUserId, curren
     });
 
   const [isPaying, startTransition] = useTransition();
+  const [isSaving, startSaveTransition] = useTransition();
 
   const handlePay = (member: any) => {
     startTransition(async () => {
@@ -215,10 +217,22 @@ export function BillCard({ bill, members, allTransactions, currentUserId, curren
           </DialogHeader>
 
           {isEditing ? (
-            <form action={async (fd) => {
+            <form action={(fd) => {
+              setEditError(null);
               fd.set("billId", bill.id);
-              const res = await updateBill(fd);
-              if (res.success) setIsEditing(false);
+              startSaveTransition(async () => {
+                try {
+                  const res = await updateBill(fd);
+                  if (res.success) {
+                    setIsEditing(false);
+                  } else if (res.error) {
+                    setEditError(res.error);
+                  }
+                } catch (e: any) {
+                  console.error("Error updating bill:", e);
+                  setEditError(e.message || "Erro de rede ou de servidor.");
+                }
+              });
             }} className="space-y-4 py-4">
               <div className="grid gap-4">
                 <div className="space-y-2">
@@ -284,9 +298,29 @@ export function BillCard({ bill, members, allTransactions, currentUserId, curren
                   <p className="text-[10px] text-slate-500 italic">* O valor será recalculado e dividido entre os selecionados.</p>
                 </div>
               </div>
+              {editError && (
+                <p className="text-sm font-medium text-red-500 bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+                  {editError}
+                </p>
+              )}
               <div className="flex gap-2 pt-4">
-                <Button type="button" variant="ghost" className="flex-1" onClick={() => setIsEditing(false)}>Cancelar</Button>
-                <Button type="submit" className="flex-1 bg-indigo-600 hover:bg-indigo-500">Salvar Alterações</Button>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  className="flex-1" 
+                  disabled={isSaving}
+                  onClick={() => { setIsEditing(false); setEditError(null); }}
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={isSaving} 
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-500 gap-2 font-semibold"
+                >
+                  {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Salvar Alterações
+                </Button>
               </div>
             </form>
           ) : (
