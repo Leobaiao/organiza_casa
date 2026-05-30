@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { User, Home, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { LeaveHouseButton } from "./leave-house-button";
+import { InstallPWA } from "@/components/InstallPWA";
 
 export function SettingsForm({ profile }: { profile: any }) {
   const [profileState, profileAction, isUpdatingProfile] = useActionState(async (_: any, fd: FormData) => updateProfile(fd), null);
@@ -69,6 +70,8 @@ export function SettingsForm({ profile }: { profile: any }) {
           </form>
         </CardContent>
       </Card>
+
+      <InstallPWA />
 
       {/* Household Settings (Admin only) */}
       {profile?.role === 'admin' && (

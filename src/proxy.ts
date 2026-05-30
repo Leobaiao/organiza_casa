@@ -80,8 +80,9 @@ export const config = {
      * - _next (internal Next.js routes, static files, HMR)
      * - api (API routes)
      * - favicon.ico (favicon file)
+     * - sw.js, manifest.json (PWA files)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next|api|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next|api|favicon.ico|sw\\.js|manifest\\.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
